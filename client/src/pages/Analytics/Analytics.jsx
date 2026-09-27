@@ -1,0 +1,359 @@
+import { useState, useEffect } from 'react';
+import { analyticsAPI } from '../../services/api';
+import toast from 'react-hot-toast';
+import {
+  Chart as ChartJS,
+  CategoryScale,
+  LinearScale,
+  PointElement,
+  LineElement,
+  BarElement,
+  ArcElement,
+  Title,
+  Tooltip,
+  Legend,
+  Filler
+} from 'chart.js';
+import { Line, Doughnut, Bar } from 'react-chartjs-2';
+import './Analytics.css';
+
+ChartJS.register(
+  CategoryScale,
+  LinearScale,
+  PointElement,
+  LineElement,
+  BarElement,
+  ArcElement,
+  Title,
+  Tooltip,
+  Legend,
+  Filler
+);
+
+export default function Analytics() {
+  const [timeRange, setTimeRange] = useState(7);
+  const [overview, setOverview] = useState(null);
+  const [trends, setTrends] = useState([]);
+  const [subjectPerf, setSubjectPerf] = useState([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    fetchAllAnalytics(timeRange);
+  }, [timeRange]);
+
+  const fetchAllAnalytics = async (days) => {
+    try {
+      const [ovRes, trRes, spRes] = await Promise.all([
+        analyticsAPI.getOverview(),
+        analyticsAPI.getStudyTrends(days),
+        analyticsAPI.getSubjectPerformance()
+      ]);
+      setOverview(ovRes.data.data);
+      setTrends(trRes.data.data);
+      setSubjectPerf(spRes.data.data);
+    } catch {
+      toast.error('Failed to load analytics');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  if (loading) {
+    return (
+      <div className="loader">
+        <div className="spinner"></div>
+      </div>
+    );
+  }
+
+  // Trend Chart Data
+  const trendLabels = trends.map((t) => {
+    const d = new Date(t.date);
+    return d.toLocaleDateString('en-US', { weekday: 'short', month: 'numeric', day: 'numeric' });
+  });
+
+  const trendHoursData = trends.map((t) => t.hours);
+  const trendFocusData = trends.map((t) => t.avgFocus);
+
+  const studyTrendsChartData = {
+    labels: trendLabels,
+    datasets: [
+      {
+        label: 'Study Hours',
+        data: trendHoursData,
+        borderColor: '#8b5cf6',
+        backgroundColor: 'rgba(139, 92, 246, 0.15)',
+        fill: true,
+        tension: 0.4,
+        yAxisID: 'y'
+      },
+      {
+        label: 'Avg Focus (1-10)',
+        data: trendFocusData,
+        borderColor: '#06b6d4',
+        backgroundColor: 'transparent',
+        borderDash: [5, 5],
+        pointRadius: 4,
+        tension: 0.2,
+        yAxisID: 'y1'
+      }
+    ]
+  };
+
+  const trendOptions = {
+    responsive: true,
+    maintainAspectRatio: false,
+    plugins: {
+      legend: {
+        labels: { color: '#94a3b8' }
+      }
+    },
+    scales: {
+      x: {
+        ticks: { color: '#64748b' },
+        grid: { color: 'rgba(255,255,255,0.04)' }
+      },
+      y: {
+        type: 'linear',
+        display: true,
+        position: 'left',
+        ticks: { color: '#8b5cf6' },
+        grid: { color: 'rgba(255,255,255,0.04)' },
+        title: { display: true, text: 'Hours', color: '#8b5cf6' }
+      },
+      y1: {
+        type: 'linear',
+        display: true,
+        position: 'right',
+        min: 0,
+        max: 10,
+        grid: { drawOnChartArea: false },
+        ticks: { color: '#06b6d4' },
+        title: { display: true, text: 'Focus Score', color: '#06b6d4' }
+      }
+    }
+  };
+
+  // Task Status Doughnut Data
+  const taskData = overview?.tasks || { completed: 0, inProgress: 0, pending: 0, overdue: 0 };
+  const doughnutData = {
+    labels: ['Completed', 'In Progress', 'Pending', 'Overdue'],
+    datasets: [
+      {
+        data: [
+          taskData.completed,
+          taskData.inProgress,
+          taskData.pending,
+          taskData.overdue
+        ],
+        backgroundColor: ['#10b981', '#3b82f6', '#f59e0b', '#f43f5e'],
+        borderWidth: 0
+      }
+    ]
+  };
+
+  const doughnutOptions = {
+    responsive: true,
+    maintainAspectRatio: false,
+    plugins: {
+      legend: {
+        position: 'bottom',
+        labels: { color: '#94a3b8', boxWidth: 12 }
+      }
+    },
+    cutout: '72%'
+  };
+
+  // Subject Grades comparison bar chart
+  const subjectNames = subjectPerf.map((s) => s.name);
+  const currentGrades = subjectPerf.map((s) => s.currentGrade || 0);
+  const targetGrades = subjectPerf.map((s) => s.targetGrade || 0);
+
+  const subjectChartData = {
+    labels: subjectNames,
+    datasets: [
+      {
+        label: 'Current Grade',
+        data: currentGrades,
+        backgroundColor: '#8b5cf6',
+        borderRadius: 6
+      },
+      {
+        label: 'Target Grade',
+        data: targetGrades,
+        backgroundColor: 'rgba(6, 182, 212, 0.4)',
+        borderColor: '#06b6d4',
+        borderWidth: 1,
+        borderRadius: 6
+      }
+    ]
+  };
+
+  const subjectChartOptions = {
+    responsive: true,
+    maintainAspectRatio: false,
+    scales: {
+      x: {
+        ticks: { color: '#94a3b8' },
+        grid: { color: 'rgba(255,255,255,0.04)' }
+      },
+      y: {
+        min: 0,
+        max: 100,
+        ticks: { color: '#94a3b8' },
+        grid: { color: 'rgba(255,255,255,0.04)' }
+      }
+    },
+    plugins: {
+      legend: {
+        labels: { color: '#94a3b8' }
+      }
+    }
+  };
+
+  return (
+    <div className="analytics-page">
+      {/* Header */}
+      <div className="analytics-header animate-fade-in">
+        <div>
+          <h1 className="analytics-title">
+            Academic <span className="gradient-text">Analytics</span>
+          </h1>
+          <p className="analytics-subtitle">
+            Insights, completion rates, and learning momentum
+          </p>
+        </div>
+
+        <div className="analytics-time-filter">
+          {[7, 14, 30].map((d) => (
+            <button
+              key={d}
+              className={`time-btn ${timeRange === d ? 'time-btn--active' : ''}`}
+              onClick={() => setTimeRange(d)}
+            >
+              Last {d} Days
+            </button>
+          ))}
+        </div>
+      </div>
+
+      {/* KPI row */}
+      <div className="analytics-kpis animate-fade-in-up stagger-1">
+        <div className="kpi-card glass-card">
+          <div className="kpi-icon-wrap" style={{ background: 'rgba(139, 92, 246, 0.15)', color: '#8b5cf6' }}>
+            ⏱️
+          </div>
+          <div>
+            <div className="kpi-value" style={{ color: '#a78bfa' }}>
+              {overview?.study?.totalHours || 0} hrs
+            </div>
+            <div className="kpi-label">Total Time Studied</div>
+          </div>
+        </div>
+
+        <div className="kpi-card glass-card">
+          <div className="kpi-icon-wrap" style={{ background: 'rgba(6, 182, 212, 0.15)', color: '#06b6d4' }}>
+            🎯
+          </div>
+          <div>
+            <div className="kpi-value" style={{ color: '#06b6d4' }}>
+              {overview?.study?.avgFocusScore || 0}/10
+            </div>
+            <div className="kpi-label">Average Focus Score</div>
+          </div>
+        </div>
+
+        <div className="kpi-card glass-card">
+          <div className="kpi-icon-wrap" style={{ background: 'rgba(16, 185, 129, 0.15)', color: '#10b981' }}>
+            ✅
+          </div>
+          <div>
+            <div className="kpi-value" style={{ color: '#10b981' }}>
+              {overview?.tasks?.completionRate || 0}%
+            </div>
+            <div className="kpi-label">Task Completion Rate</div>
+          </div>
+        </div>
+
+        <div className="kpi-card glass-card">
+          <div className="kpi-icon-wrap" style={{ background: 'rgba(244, 63, 94, 0.15)', color: '#f43f5e' }}>
+            🔥
+          </div>
+          <div>
+            <div className="kpi-value" style={{ color: '#f43f5e' }}>
+              {overview?.streak?.current || 0} Days
+            </div>
+            <div className="kpi-label">Current Streak (Best: {overview?.streak?.longest || 0})</div>
+          </div>
+        </div>
+      </div>
+
+      {/* Charts row 1: Study Trends & Task Distribution */}
+      <div className="charts-grid animate-fade-in-up stagger-2">
+        <div className="chart-card glass-card">
+          <div className="chart-card-title">Study Hours & Focus Score Trends</div>
+          <div className="chart-card-subtitle">
+            Daily distribution of study time and self-reported focus
+          </div>
+          <div className="chart-wrapper">
+            <Line data={studyTrendsChartData} options={trendOptions} />
+          </div>
+        </div>
+
+        <div className="chart-card glass-card">
+          <div className="chart-card-title">Task Distribution</div>
+          <div className="chart-card-subtitle">Breakdown of current task statuses</div>
+          <div className="chart-wrapper">
+            <Doughnut data={doughnutData} options={doughnutOptions} />
+          </div>
+        </div>
+      </div>
+
+      {/* Charts row 2: Subject Performance Bar Chart */}
+      {subjectPerf.length > 0 && (
+        <div className="subject-performance-section glass-card animate-fade-in-up stagger-3">
+          <div className="chart-card-title">Grade Targets vs Actuals</div>
+          <div className="chart-card-subtitle">
+            Identify subjects that need immediate attention and study reinforcement
+          </div>
+          <div className="chart-wrapper" style={{ minHeight: '280px' }}>
+            <Bar data={subjectChartData} options={subjectChartOptions} />
+          </div>
+
+          <div className="subject-perf-grid">
+            {subjectPerf.map((sub) => (
+              <div key={sub._id} className="subject-perf-card">
+                <div className="subject-perf-top">
+                  <span className="subject-perf-name" style={{ color: sub.color }}>
+                    {sub.icon} {sub.name}
+                  </span>
+                  <span className="subject-perf-hours">⏱️ {sub.studyHours}h logged</span>
+                </div>
+                <div className="subject-perf-grades">
+                  <span>
+                    Current: <span className="grade-val">{sub.currentGrade}%</span>
+                  </span>
+                  <span>
+                    Target: <span className="grade-val">{sub.targetGrade}%</span>
+                  </span>
+                </div>
+                <div className="dashboard__progress-bar">
+                  <div
+                    className="dashboard__progress-fill"
+                    style={{
+                      width: `${Math.min(sub.completionRate, 100)}%`,
+                      background: sub.color
+                    }}
+                  ></div>
+                </div>
+                <div style={{ fontSize: '0.75rem', color: 'var(--text-tertiary)' }}>
+                  {sub.completedTasks} / {sub.totalTasks} tasks completed ({sub.completionRate}%)
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}

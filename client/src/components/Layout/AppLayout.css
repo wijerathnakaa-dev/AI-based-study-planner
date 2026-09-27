@@ -1,0 +1,39 @@
+.app-layout {
+  display: flex;
+  min-height: 100vh;
+}
+
+.app-layout__main {
+  flex: 1;
+  margin-left: var(--sidebar-width);
+  padding: 24px 32px;
+  min-height: 100vh;
+  transition: margin-left var(--transition-base);
+  background: var(--bg-primary);
+  position: relative;
+}
+
+/* Subtle gradient background effect */
+.app-layout__main::before {
+  content: '';
+  position: fixed;
+  top: -50%;
+  right: -30%;
+  width: 600px;
+  height: 600px;
+  background: radial-gradient(circle, rgba(139, 92, 246, 0.04) 0%, transparent 70%);
+  pointer-events: none;
+  z-index: 0;
+}
+
+.app-layout__main > * {
+  position: relative;
+  z-index: 1;
+}
+
+@media (max-width: 768px) {
+  .app-layout__main {
+    margin-left: 0;
+    padding: 16px;
+  }
+}

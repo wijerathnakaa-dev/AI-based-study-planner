@@ -1,0 +1,79 @@
+.subjects-page { max-width: 1100px; }
+.subjects-page__header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 24px; }
+.subjects-page__header h1 { font-size: 1.6rem; font-weight: 800; }
+.subjects-page__subtitle { color: var(--text-secondary); font-size: 0.88rem; margin-top: 2px; }
+
+.subjects-page__empty { text-align: center; padding: 56px 24px; }
+.subjects-page__empty h3 { font-size: 1.2rem; margin-bottom: 6px; }
+.subjects-page__empty p { color: var(--text-secondary); font-size: 0.9rem; margin-bottom: 18px; }
+
+.subjects-page__grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 18px; }
+
+.subjects-page__card {
+  padding: 22px;
+  opacity: 0;
+  border-top: 3px solid var(--subject-color);
+}
+
+.subjects-page__card-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 14px; }
+
+.subjects-page__card-icon {
+  width: 44px; height: 44px; border-radius: var(--radius-md);
+  display: flex; align-items: center; justify-content: center; font-size: 1.3rem;
+}
+
+.subjects-page__card-actions { display: flex; gap: 4px; opacity: 0; transition: opacity var(--transition-fast); }
+.subjects-page__card:hover .subjects-page__card-actions { opacity: 1; }
+
+.subjects-page__action-btn {
+  background: var(--bg-glass); border: 1px solid var(--border-color); border-radius: var(--radius-sm);
+  padding: 4px 6px; font-size: 0.8rem; cursor: pointer; transition: all var(--transition-fast);
+}
+.subjects-page__action-btn:hover { background: var(--bg-glass-hover); }
+
+.subjects-page__card-name { font-size: 1.1rem; font-weight: 700; margin-bottom: 4px; }
+.subjects-page__card-semester { font-size: 0.8rem; color: var(--text-tertiary); margin-bottom: 16px; }
+
+.subjects-page__card-grades {
+  display: flex; align-items: center; justify-content: center; gap: 24px;
+  padding: 14px; background: var(--bg-glass); border-radius: var(--radius-md); margin-bottom: 14px;
+}
+
+.subjects-page__grade-item { text-align: center; }
+.subjects-page__grade-label { display: block; font-size: 0.72rem; color: var(--text-tertiary); margin-bottom: 2px; }
+.subjects-page__grade-value { font-family: var(--font-heading); font-size: 1.4rem; font-weight: 700; }
+.subjects-page__grade-divider { width: 1px; height: 36px; background: var(--border-color); }
+
+.subjects-page__card-progress { margin-bottom: 14px; }
+.subjects-page__progress-label { display: flex; justify-content: space-between; font-size: 0.78rem; color: var(--text-secondary); margin-bottom: 5px; }
+.subjects-page__progress-bar { height: 5px; background: var(--bg-glass); border-radius: var(--radius-full); overflow: hidden; }
+.subjects-page__progress-fill { height: 100%; border-radius: var(--radius-full); transition: width 0.8s ease; }
+
+.subjects-page__card-stats {
+  display: flex; justify-content: space-around;
+  padding-top: 12px; border-top: 1px solid var(--border-color);
+}
+
+.subjects-page__stat-mini { text-align: center; }
+.subjects-page__stat-mini span:first-child { display: block; font-weight: 700; font-size: 0.95rem; color: var(--text-primary); }
+.subjects-page__stat-mini span:last-child { display: block; font-size: 0.68rem; color: var(--text-tertiary); }
+
+/* Icon & Color pickers */
+.subjects-page__icon-grid { display: flex; flex-wrap: wrap; gap: 6px; }
+.subjects-page__icon-btn {
+  width: 38px; height: 38px; border-radius: var(--radius-sm); border: 2px solid var(--border-color);
+  background: var(--bg-glass); font-size: 1.1rem; cursor: pointer; transition: all var(--transition-fast);
+  display: flex; align-items: center; justify-content: center;
+}
+.subjects-page__icon-btn.active, .subjects-page__icon-btn:hover { border-color: var(--accent-purple); background: rgba(139,92,246,0.1); }
+
+.subjects-page__color-grid { display: flex; flex-wrap: wrap; gap: 8px; }
+.subjects-page__color-btn {
+  width: 30px; height: 30px; border-radius: 50%; border: 3px solid transparent; cursor: pointer;
+  transition: all var(--transition-fast);
+}
+.subjects-page__color-btn.active, .subjects-page__color-btn:hover { border-color: white; transform: scale(1.15); }
+
+@media (max-width: 700px) {
+  .subjects-page__grid { grid-template-columns: 1fr; }
+}
