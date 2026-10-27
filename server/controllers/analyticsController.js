@@ -61,7 +61,7 @@ exports.getOverview = async (req, res, next) => {
           avgFocusScore: Math.round(avgFocusScore * 10) / 10,
           totalSessions: allSessions.length
         },
-        streak: user.studyStreak,
+        streak: user?.studyStreak || { current: 0, longest: 0 },
         subjectCount,
         upcomingDeadlines
       }
@@ -172,7 +172,8 @@ exports.createSession = async (req, res, next) => {
     const user = await User.findById(req.user._id);
     const today = new Date();
     today.setHours(0, 0, 0, 0);
-    const lastStudy = user.studyStreak.lastStudyDate ? new Date(user.studyStreak.lastStudyDate) : null;
+    const streak = user?.studyStreak || { current: 0, longest: 0 };
+    const lastStudy = streak.lastStudyDate ? new Date(streak.lastStudyDate) : null;
 
     if (!lastStudy || lastStudy < today) {
       const yesterday = new Date(today);
@@ -180,12 +181,12 @@ exports.createSession = async (req, res, next) => {
 
       let newStreak = 1;
       if (lastStudy && lastStudy >= yesterday) {
-        newStreak = user.studyStreak.current + 1;
+        newStreak = (streak.current || 0) + 1;
       }
 
       await User.findByIdAndUpdate(req.user._id, {
         'studyStreak.current': newStreak,
-        'studyStreak.longest': Math.max(newStreak, user.studyStreak.longest),
+        'studyStreak.longest': Math.max(newStreak, streak.longest || 0),
         'studyStreak.lastStudyDate': new Date()
       });
     }
