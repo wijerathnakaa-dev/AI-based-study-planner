@@ -66,7 +66,6 @@ export default function Analytics() {
     );
   }
 
-  // Trend Chart Data
   const trendLabels = trends.map((t) => {
     const d = new Date(t.date);
     return d.toLocaleDateString('en-US', { weekday: 'short', month: 'numeric', day: 'numeric' });
@@ -134,7 +133,6 @@ export default function Analytics() {
     }
   };
 
-  // Task Status Doughnut Data
   const taskData = overview?.tasks || { completed: 0, inProgress: 0, pending: 0, overdue: 0 };
   const doughnutData = {
     labels: ['Completed', 'In Progress', 'Pending', 'Overdue'],
@@ -164,7 +162,6 @@ export default function Analytics() {
     cutout: '72%'
   };
 
-  // Subject Grades comparison bar chart
   const subjectNames = subjectPerf.map((s) => s.name);
   const currentGrades = subjectPerf.map((s) => s.currentGrade || 0);
   const targetGrades = subjectPerf.map((s) => s.targetGrade || 0);
@@ -213,7 +210,6 @@ export default function Analytics() {
 
   return (
     <div className="analytics-page">
-      {/* Header */}
       <div className="analytics-header animate-fade-in">
         <div>
           <h1 className="analytics-title">
@@ -237,7 +233,6 @@ export default function Analytics() {
         </div>
       </div>
 
-      {/* KPI row */}
       <div className="analytics-kpis animate-fade-in-up stagger-1">
         <div className="kpi-card glass-card">
           <div className="kpi-icon-wrap" style={{ background: 'rgba(139, 92, 246, 0.15)', color: '#8b5cf6' }}>
@@ -288,7 +283,6 @@ export default function Analytics() {
         </div>
       </div>
 
-      {/* Charts row 1: Study Trends & Task Distribution */}
       <div className="charts-grid animate-fade-in-up stagger-2">
         <div className="chart-card glass-card">
           <div className="chart-card-title">Study Hours & Focus Score Trends</div>
@@ -309,7 +303,6 @@ export default function Analytics() {
         </div>
       </div>
 
-      {/* Charts row 2: Subject Performance Bar Chart */}
       {subjectPerf.length > 0 && (
         <div className="subject-performance-section glass-card animate-fade-in-up stagger-3">
           <div className="chart-card-title">Grade Targets vs Actuals</div>

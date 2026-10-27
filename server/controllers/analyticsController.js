@@ -3,46 +3,37 @@ const Subject = require('../models/Subject');
 const StudySession = require('../models/StudySession');
 const User = require('../models/User');
 
-// @desc    Get analytics overview
-// @route   GET /api/analytics/overview
 exports.getOverview = async (req, res, next) => {
   try {
     const userId = req.user._id;
 
-    // Task stats
     const totalTasks = await Task.countDocuments({ user: userId });
     const completedTasks = await Task.countDocuments({ user: userId, status: 'completed' });
     const pendingTasks = await Task.countDocuments({ user: userId, status: 'pending' });
     const inProgressTasks = await Task.countDocuments({ user: userId, status: 'in-progress' });
 
-    // Overdue tasks
     const overdueTasks = await Task.countDocuments({
       user: userId,
       status: { $ne: 'completed' },
       dueDate: { $lt: new Date() }
     });
 
-    // Study sessions
     const allSessions = await StudySession.find({ user: userId });
     const totalStudyMinutes = allSessions.reduce((sum, s) => sum + s.duration, 0);
     const avgFocusScore = allSessions.length > 0
       ? allSessions.reduce((sum, s) => sum + s.focusScore, 0) / allSessions.length
       : 0;
 
-    // This week's study time
     const weekStart = new Date();
     weekStart.setDate(weekStart.getDate() - weekStart.getDay());
     weekStart.setHours(0, 0, 0, 0);
     const weekSessions = allSessions.filter(s => new Date(s.startTime) >= weekStart);
     const weeklyStudyMinutes = weekSessions.reduce((sum, s) => sum + s.duration, 0);
 
-    // Subject count
     const subjectCount = await Subject.countDocuments({ user: userId });
 
-    // Study streak
     const user = await User.findById(userId);
 
-    // Upcoming deadlines (next 7 days)
     const nextWeek = new Date();
     nextWeek.setDate(nextWeek.getDate() + 7);
     const upcomingDeadlines = await Task.find({
@@ -80,8 +71,6 @@ exports.getOverview = async (req, res, next) => {
   }
 };
 
-// @desc    Get study trends (last 30 days)
-// @route   GET /api/analytics/study-trends
 exports.getStudyTrends = async (req, res, next) => {
   try {
     const { days = 30 } = req.query;
@@ -94,7 +83,6 @@ exports.getStudyTrends = async (req, res, next) => {
       startTime: { $gte: startDate }
     }).populate('subject', 'name color');
 
-    // Group by date
     const dailyData = {};
     for (let i = 0; i < Number(days); i++) {
       const d = new Date(startDate);
@@ -127,8 +115,6 @@ exports.getStudyTrends = async (req, res, next) => {
   }
 };
 
-// @desc    Get subject performance
-// @route   GET /api/analytics/subject-performance
 exports.getSubjectPerformance = async (req, res, next) => {
   try {
     const subjects = await Subject.find({ user: req.user._id });
@@ -165,13 +151,10 @@ exports.getSubjectPerformance = async (req, res, next) => {
   }
 };
 
-// @desc    Log a study session
-// @route   POST /api/analytics/sessions
 exports.createSession = async (req, res, next) => {
   try {
     req.body.user = req.user._id;
 
-    // Calculate duration if start and end provided
     if (req.body.startTime && req.body.endTime) {
       const start = new Date(req.body.startTime);
       const end = new Date(req.body.endTime);
@@ -180,14 +163,12 @@ exports.createSession = async (req, res, next) => {
 
     const session = await StudySession.create(req.body);
 
-    // Update subject total study minutes
     if (req.body.subject) {
       await Subject.findByIdAndUpdate(req.body.subject, {
         $inc: { totalStudyMinutes: session.duration }
       });
     }
 
-    // Update study streak
     const user = await User.findById(req.user._id);
     const today = new Date();
     today.setHours(0, 0, 0, 0);
@@ -209,7 +190,6 @@ exports.createSession = async (req, res, next) => {
       });
     }
 
-    // Update task completed minutes
     if (req.body.task) {
       const Task = require('../models/Task');
       await Task.findByIdAndUpdate(req.body.task, {

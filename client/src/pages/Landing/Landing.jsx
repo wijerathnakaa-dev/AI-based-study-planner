@@ -53,7 +53,6 @@ export default function Landing() {
 
   return (
     <div className="landing">
-      {/* Navbar */}
       <nav className="landing__nav">
         <div className="landing__nav-brand">
           <span className="landing__nav-icon">🧠</span>
@@ -71,7 +70,6 @@ export default function Landing() {
         </div>
       </nav>
 
-      {/* Hero */}
       <section className="landing__hero">
         <div className="landing__hero-bg">
           <div className="landing__orb landing__orb--1"></div>
@@ -101,7 +99,6 @@ export default function Landing() {
             </Link>
           </div>
 
-          {/* Stats */}
           <div className="landing__stats animate-fade-in-up stagger-4">
             {stats.map((stat) => (
               <div key={stat.label} className="landing__stat">
@@ -113,7 +110,6 @@ export default function Landing() {
         </div>
       </section>
 
-      {/* Features */}
       <section className="landing__features" id="features">
         <div className="landing__section-header">
           <h2 className="landing__section-title">
@@ -143,7 +139,6 @@ export default function Landing() {
         </div>
       </section>
 
-      {/* CTA */}
       <section className="landing__cta">
         <div className="landing__cta-content glass-card">
           <h2>Ready to Transform Your Studies?</h2>
@@ -154,7 +149,6 @@ export default function Landing() {
         </div>
       </section>
 
-      {/* Footer */}
       <footer className="landing__footer">
         <div className="landing__footer-brand">
           <span>🧠</span> StudyAI

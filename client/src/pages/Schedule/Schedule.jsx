@@ -47,7 +47,6 @@ export default function Schedule() {
 
   return (
     <div className="schedule-page">
-      {/* Header */}
       <div className="schedule-header animate-fade-in">
         <div>
           <h1 className="schedule-title">
@@ -86,7 +85,6 @@ export default function Schedule() {
         </div>
       </div>
 
-      {/* AI Insights */}
       {scheduleData?.insights && scheduleData.insights.length > 0 && (
         <div className="schedule-insights animate-fade-in-up">
           {scheduleData.insights.map((insight, idx) => (
@@ -104,7 +102,6 @@ export default function Schedule() {
         </div>
       )}
 
-      {/* Day Selector Pills */}
       {scheduleData?.schedule && scheduleData.schedule.length > 1 && (
         <div className="day-selector-bar animate-fade-in-up stagger-1">
           {scheduleData.schedule.map((day, idx) => (
@@ -120,7 +117,6 @@ export default function Schedule() {
         </div>
       )}
 
-      {/* Timeline sessions */}
       <div className="timeline-container animate-fade-in-up stagger-2">
         {currentDaySchedule?.sessions && currentDaySchedule.sessions.length > 0 ? (
           currentDaySchedule.sessions.map((slot, index) => (

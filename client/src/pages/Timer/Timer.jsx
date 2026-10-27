@@ -23,7 +23,6 @@ export default function Timer() {
   const [selectedSubject, setSelectedSubject] = useState('');
   const [selectedTask, setSelectedTask] = useState('');
 
-  // Completion modal state
   const [showCompleteModal, setShowCompleteModal] = useState(false);
   const [completedDuration, setCompletedDuration] = useState(25);
   const [focusScore, setFocusScore] = useState(8);
@@ -32,7 +31,6 @@ export default function Timer() {
 
   const timerRef = useRef(null);
 
-  // Play audio chime using Web Audio API
   const playChime = () => {
     try {
       const AudioCtx = window.AudioContext || window.webkitAudioContext;
@@ -42,8 +40,8 @@ export default function Timer() {
       const gain = ctx.createGain();
 
       osc.type = 'sine';
-      osc.frequency.setValueAtTime(587.33, ctx.currentTime); // D5
-      osc.frequency.exponentialRampToValueAtTime(880, ctx.currentTime + 0.3); // A5
+      osc.frequency.setValueAtTime(587.33, ctx.currentTime);
+      osc.frequency.exponentialRampToValueAtTime(880, ctx.currentTime + 0.3);
 
       gain.gain.setValueAtTime(0.3, ctx.currentTime);
       gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 1.2);
@@ -54,15 +52,12 @@ export default function Timer() {
       osc.start();
       osc.stop(ctx.currentTime + 1.2);
     } catch {
-      // Ignore if audio permissions blocked
     }
   };
 
   useEffect(() => {
-    // Load subjects and tasks for selector
     loadInitialData();
 
-    // Check if task came from navigation state
     if (location.state?.taskId) {
       setSelectedTask(location.state.taskId);
     }
@@ -84,7 +79,6 @@ export default function Timer() {
         }
       }
     } catch {
-      // Ignore error
     }
   };
 
@@ -149,7 +143,6 @@ export default function Timer() {
       toast.success('Study session logged to your analytics! 📈');
       setShowCompleteModal(false);
       setSessionNotes('');
-      // Reset timer
       setTimeLeft(totalSeconds);
     } catch {
       toast.error('Failed to log session');
@@ -158,14 +151,12 @@ export default function Timer() {
     }
   };
 
-  // Format MM:SS
   const formatTime = (secs) => {
     const m = Math.floor(secs / 60);
     const s = secs % 60;
     return `${String(m).padStart(2, '0')}:${String(s).padStart(2, '0')}`;
   };
 
-  // SVG Progress circle calculations
   const radius = 120;
   const circumference = 2 * Math.PI * radius;
   const progressOffset = circumference - (timeLeft / totalSeconds) * circumference;
@@ -182,7 +173,6 @@ export default function Timer() {
       </div>
 
       <div className="timer-container glass-card animate-fade-in-up">
-        {/* Mode selector pills */}
         <div className="timer-modes">
           {Object.keys(MODES).map((key) => (
             <button
@@ -195,7 +185,6 @@ export default function Timer() {
           ))}
         </div>
 
-        {/* Circular Timer Visual */}
         <div className="timer-circle-wrapper">
           <svg className="timer-svg" viewBox="0 0 280 280">
             <defs>
@@ -226,7 +215,6 @@ export default function Timer() {
           </div>
         </div>
 
-        {/* Action Controls */}
         <div className="timer-controls">
           <button
             className="btn-timer-secondary"
@@ -249,7 +237,6 @@ export default function Timer() {
           </button>
         </div>
 
-        {/* Link to subject and task */}
         <div className="timer-link-section">
           <div className="timer-select-group">
             <label className="label" htmlFor="timer-subject">Link Subject</label>
@@ -287,7 +274,6 @@ export default function Timer() {
         </div>
       </div>
 
-      {/* Session completion modal */}
       {showCompleteModal && (
         <div className="completion-modal-backdrop">
           <div className="completion-modal glass-card animate-scale-in">

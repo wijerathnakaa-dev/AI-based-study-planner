@@ -51,7 +51,6 @@ export default function Profile() {
       </div>
 
       <div className="profile-grid animate-fade-in-up">
-        {/* User Card */}
         <div className="profile-card glass-card">
           <div className="profile-avatar-large">
             {user?.name?.charAt(0).toUpperCase() || 'U'}
@@ -71,7 +70,6 @@ export default function Profile() {
           </div>
         </div>
 
-        {/* Settings Form */}
         <div className="settings-card glass-card">
           <form onSubmit={handleSubmit}>
             <div className="settings-section-title">

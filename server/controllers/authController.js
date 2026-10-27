@@ -1,14 +1,12 @@
 const jwt = require('jsonwebtoken');
 const User = require('../models/User');
 
-// Generate JWT token
 const generateToken = (id) => {
   return jwt.sign({ id }, process.env.JWT_SECRET, {
     expiresIn: process.env.JWT_EXPIRE || '7d'
   });
 };
 
-// Set token cookie
 const sendTokenResponse = (user, statusCode, res) => {
   const token = generateToken(user._id);
 
@@ -16,7 +14,7 @@ const sendTokenResponse = (user, statusCode, res) => {
     httpOnly: true,
     secure: process.env.NODE_ENV === 'production',
     sameSite: 'lax',
-    maxAge: 7 * 24 * 60 * 60 * 1000 // 7 days
+    maxAge: 7 * 24 * 60 * 60 * 1000
   };
 
   const userData = {
@@ -38,13 +36,10 @@ const sendTokenResponse = (user, statusCode, res) => {
     });
 };
 
-// @desc    Register user
-// @route   POST /api/auth/register
 exports.register = async (req, res, next) => {
   try {
     const { name, email, password } = req.body;
 
-    // Check if user exists
     const existingUser = await User.findOne({ email });
     if (existingUser) {
       return res.status(400).json({
@@ -60,8 +55,6 @@ exports.register = async (req, res, next) => {
   }
 };
 
-// @desc    Login user
-// @route   POST /api/auth/login
 exports.login = async (req, res, next) => {
   try {
     const { email, password } = req.body;
@@ -95,8 +88,6 @@ exports.login = async (req, res, next) => {
   }
 };
 
-// @desc    Logout user
-// @route   POST /api/auth/logout
 exports.logout = async (req, res) => {
   res.cookie('token', 'none', {
     expires: new Date(Date.now() + 5 * 1000),
@@ -109,8 +100,6 @@ exports.logout = async (req, res) => {
   });
 };
 
-// @desc    Get current user
-// @route   GET /api/auth/me
 exports.getMe = async (req, res, next) => {
   try {
     const user = await User.findById(req.user._id);
@@ -123,8 +112,6 @@ exports.getMe = async (req, res, next) => {
   }
 };
 
-// @desc    Update user profile
-// @route   PUT /api/auth/profile
 exports.updateProfile = async (req, res, next) => {
   try {
     const { name, preferences } = req.body;

@@ -14,7 +14,6 @@ import Analytics from './pages/Analytics/Analytics';
 import Timer from './pages/Timer/Timer';
 import Profile from './pages/Profile/Profile';
 
-// Route guard for authenticated users
 function ProtectedRoute({ children }) {
   const { user, loading } = useAuth();
 
@@ -33,7 +32,6 @@ function ProtectedRoute({ children }) {
   return children;
 }
 
-// Redirect already logged in users away from auth pages
 function PublicOnlyRoute({ children }) {
   const { user, loading } = useAuth();
 
@@ -84,10 +82,8 @@ export default function App() {
         />
 
         <Routes>
-          {/* Public Landing */}
           <Route path="/" element={<Landing />} />
 
-          {/* Public Auth */}
           <Route
             path="/login"
             element={
@@ -105,7 +101,6 @@ export default function App() {
             }
           />
 
-          {/* Protected Application Area */}
           <Route
             path="/"
             element={
@@ -123,7 +118,6 @@ export default function App() {
             <Route path="profile" element={<Profile />} />
           </Route>
 
-          {/* Catch-all redirect */}
           <Route path="*" element={<Navigate to="/" replace />} />
         </Routes>
       </Router>

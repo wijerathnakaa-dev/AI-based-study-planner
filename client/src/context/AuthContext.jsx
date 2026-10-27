@@ -52,7 +52,6 @@ export function AuthProvider({ children }) {
     try {
       await authAPI.logout();
     } catch {
-      // ignore
     }
     localStorage.removeItem('token');
     localStorage.removeItem('user');

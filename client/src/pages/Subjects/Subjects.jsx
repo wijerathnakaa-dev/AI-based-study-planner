@@ -157,7 +157,6 @@ export default function Subjects() {
         </div>
       )}
 
-      {/* Modal */}
       {showModal && (
         <div className="modal-overlay" onClick={(e) => e.target.className === 'modal-overlay' && setShowModal(false)}>
           <div className="modal-content">

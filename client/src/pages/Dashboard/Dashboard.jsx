@@ -27,7 +27,6 @@ export default function Dashboard() {
       setRecentTasks(tasksRes.data.data.slice(0, 5));
       setSchedule(scheduleRes.data.data);
     } catch (err) {
-      // If no data yet, set empty defaults
       setOverview(null);
       setRecentTasks([]);
     } finally {
@@ -87,7 +86,6 @@ export default function Dashboard() {
 
   return (
     <div className="dashboard">
-      {/* Header */}
       <div className="dashboard__header animate-fade-in">
         <div>
           <h1 className="dashboard__greeting">
@@ -102,7 +100,6 @@ export default function Dashboard() {
         </div>
       </div>
 
-      {/* Stats Grid */}
       <div className="dashboard__stats">
         {stats.map((stat, i) => (
           <div
@@ -123,7 +120,6 @@ export default function Dashboard() {
       </div>
 
       <div className="dashboard__grid">
-        {/* Upcoming Tasks */}
         <div className="dashboard__section glass-card animate-fade-in-up stagger-3">
           <div className="dashboard__section-header">
             <h2>📋 Upcoming Tasks</h2>
@@ -168,7 +164,6 @@ export default function Dashboard() {
           )}
         </div>
 
-        {/* AI Insights */}
         <div className="dashboard__section glass-card animate-fade-in-up stagger-4">
           <div className="dashboard__section-header">
             <h2>🤖 AI Insights</h2>
@@ -196,7 +191,6 @@ export default function Dashboard() {
           )}
         </div>
 
-        {/* Progress Overview */}
         <div className="dashboard__section glass-card animate-fade-in-up stagger-5">
           <div className="dashboard__section-header">
             <h2>📊 Progress</h2>
@@ -261,7 +255,6 @@ export default function Dashboard() {
           )}
         </div>
 
-        {/* Upcoming Deadlines */}
         <div className="dashboard__section glass-card animate-fade-in-up stagger-6">
           <div className="dashboard__section-header">
             <h2>⏰ Upcoming Deadlines</h2>

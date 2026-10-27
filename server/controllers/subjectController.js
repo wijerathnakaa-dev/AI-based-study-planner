@@ -2,13 +2,10 @@ const Subject = require('../models/Subject');
 const Task = require('../models/Task');
 const StudySession = require('../models/StudySession');
 
-// @desc    Get all subjects for user
-// @route   GET /api/subjects
 exports.getSubjects = async (req, res, next) => {
   try {
     const subjects = await Subject.find({ user: req.user._id }).sort({ name: 1 });
 
-    // Enrich with task counts
     const enriched = await Promise.all(subjects.map(async (subject) => {
       const taskCount = await Task.countDocuments({ subject: subject._id, user: req.user._id });
       const completedTasks = await Task.countDocuments({ subject: subject._id, user: req.user._id, status: 'completed' });
@@ -29,8 +26,6 @@ exports.getSubjects = async (req, res, next) => {
   }
 };
 
-// @desc    Get single subject
-// @route   GET /api/subjects/:id
 exports.getSubject = async (req, res, next) => {
   try {
     const subject = await Subject.findOne({ _id: req.params.id, user: req.user._id });
@@ -45,8 +40,6 @@ exports.getSubject = async (req, res, next) => {
   }
 };
 
-// @desc    Create subject
-// @route   POST /api/subjects
 exports.createSubject = async (req, res, next) => {
   try {
     req.body.user = req.user._id;
@@ -57,8 +50,6 @@ exports.createSubject = async (req, res, next) => {
   }
 };
 
-// @desc    Update subject
-// @route   PUT /api/subjects/:id
 exports.updateSubject = async (req, res, next) => {
   try {
     const subject = await Subject.findOneAndUpdate(
@@ -77,8 +68,6 @@ exports.updateSubject = async (req, res, next) => {
   }
 };
 
-// @desc    Delete subject
-// @route   DELETE /api/subjects/:id
 exports.deleteSubject = async (req, res, next) => {
   try {
     const subject = await Subject.findOneAndDelete({ _id: req.params.id, user: req.user._id });
@@ -87,7 +76,6 @@ exports.deleteSubject = async (req, res, next) => {
       return res.status(404).json({ success: false, message: 'Subject not found' });
     }
 
-    // Also remove tasks linked to this subject
     await Task.updateMany({ subject: req.params.id }, { subject: null });
 
     res.status(200).json({ success: true, data: {} });
@@ -96,8 +84,6 @@ exports.deleteSubject = async (req, res, next) => {
   }
 };
 
-// @desc    Get subject analytics
-// @route   GET /api/subjects/:id/analytics
 exports.getSubjectAnalytics = async (req, res, next) => {
   try {
     const subject = await Subject.findOne({ _id: req.params.id, user: req.user._id });

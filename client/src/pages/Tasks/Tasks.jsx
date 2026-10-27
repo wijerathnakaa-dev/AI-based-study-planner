@@ -130,7 +130,6 @@ export default function Tasks() {
         <button className="btn-primary" onClick={openCreate}>+ New Task</button>
       </div>
 
-      {/* Filters */}
       <div className="tasks-page__filters glass-card animate-fade-in-up">
         <input
           type="text"
@@ -156,7 +155,6 @@ export default function Tasks() {
         </select>
       </div>
 
-      {/* Task List */}
       {tasks.length === 0 ? (
         <div className="tasks-page__empty glass-card animate-fade-in-up">
           <div className="tasks-page__empty-icon">📋</div>
@@ -196,7 +194,6 @@ export default function Tasks() {
                       {due.text}
                     </span>
                   </div>
-                  {/* Progress bar */}
                   <div className="tasks-page__card-progress">
                     <div className="tasks-page__card-progress-bar">
                       <div
@@ -219,7 +216,6 @@ export default function Tasks() {
         </div>
       )}
 
-      {/* Modal */}
       {showModal && (
         <div className="modal-overlay" onClick={(e) => e.target.className === 'modal-overlay' && setShowModal(false)}>
           <div className="modal-content">

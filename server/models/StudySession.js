@@ -25,7 +25,7 @@ const studySessionSchema = new mongoose.Schema({
     default: null
   },
   duration: {
-    type: Number, // in minutes
+    type: Number,
     default: 0
   },
   focusScore: {
@@ -48,7 +48,6 @@ const studySessionSchema = new mongoose.Schema({
   timestamps: true
 });
 
-// Indexes
 studySessionSchema.index({ user: 1, startTime: -1 });
 studySessionSchema.index({ user: 1, subject: 1 });
 

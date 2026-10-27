@@ -10,7 +10,6 @@ const api = axios.create({
   }
 });
 
-// Add token to requests if available
 api.interceptors.request.use((config) => {
   const token = localStorage.getItem('token');
   if (token) {
@@ -19,7 +18,6 @@ api.interceptors.request.use((config) => {
   return config;
 });
 
-// Handle response errors
 api.interceptors.response.use(
   (response) => response,
   (error) => {
@@ -34,7 +32,6 @@ api.interceptors.response.use(
   }
 );
 
-// Auth API
 export const authAPI = {
   register: (data) => api.post('/auth/register', data),
   login: (data) => api.post('/auth/login', data),
@@ -43,7 +40,6 @@ export const authAPI = {
   updateProfile: (data) => api.put('/auth/profile', data)
 };
 
-// Tasks API
 export const tasksAPI = {
   getAll: (params) => api.get('/tasks', { params }),
   getOne: (id) => api.get(`/tasks/${id}`),
@@ -53,7 +49,6 @@ export const tasksAPI = {
   updateStatus: (id, status) => api.patch(`/tasks/${id}/status`, { status })
 };
 
-// Subjects API
 export const subjectsAPI = {
   getAll: () => api.get('/subjects'),
   getOne: (id) => api.get(`/subjects/${id}`),
@@ -63,13 +58,11 @@ export const subjectsAPI = {
   getAnalytics: (id) => api.get(`/subjects/${id}/analytics`)
 };
 
-// Schedule API
 export const scheduleAPI = {
   generate: (data) => api.post('/schedule/generate', data),
   getToday: () => api.get('/schedule/today')
 };
 
-// Analytics API
 export const analyticsAPI = {
   getOverview: () => api.get('/analytics/overview'),
   getStudyTrends: (days) => api.get('/analytics/study-trends', { params: { days } }),

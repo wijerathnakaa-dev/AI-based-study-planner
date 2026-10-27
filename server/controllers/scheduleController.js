@@ -3,49 +3,35 @@ const Subject = require('../models/Subject');
 const StudySession = require('../models/StudySession');
 const User = require('../models/User');
 
-/**
- * AI Scheduler Service
- * Generates optimized study schedules based on:
- * - Task priority & difficulty
- * - Due date proximity (urgency)
- * - Subject performance gaps
- * - User preferences (available hours, session duration)
- * - Spaced repetition for revision tasks
- */
 
-// Calculate urgency score (0-100) based on due date
 function calculateUrgency(dueDate) {
   const now = new Date();
   const due = new Date(dueDate);
   const hoursUntilDue = (due - now) / (1000 * 60 * 60);
 
-  if (hoursUntilDue <= 0) return 100; // Overdue
+  if (hoursUntilDue <= 0) return 100;
   if (hoursUntilDue <= 24) return 95;
   if (hoursUntilDue <= 48) return 85;
   if (hoursUntilDue <= 72) return 70;
-  if (hoursUntilDue <= 168) return 50; // Within a week
-  if (hoursUntilDue <= 336) return 30; // Within 2 weeks
+  if (hoursUntilDue <= 168) return 50;
+  if (hoursUntilDue <= 336) return 30;
   return 10;
 }
 
-// Calculate composite score for task prioritization
 function calculateTaskScore(task, subjectPerformance) {
   const urgency = calculateUrgency(task.dueDate);
   const priorityWeight = (task.priority / 5) * 100;
   const difficultyWeight = (task.difficulty / 5) * 30;
 
-  // If the subject grade is below target, boost priority
   let performanceGap = 0;
   if (subjectPerformance && subjectPerformance.targetGrade && subjectPerformance.currentGrade) {
     const gap = subjectPerformance.targetGrade - subjectPerformance.currentGrade;
     performanceGap = Math.max(0, gap) * 0.5;
   }
 
-  // Composite: urgency (40%) + priority (30%) + difficulty (15%) + gap (15%)
   return (urgency * 0.4) + (priorityWeight * 0.3) + (difficultyWeight * 0.15) + (performanceGap * 0.15);
 }
 
-// Generate time slots for a day
 function generateTimeSlots(startTime, endTime, sessionDuration, breakDuration) {
   const slots = [];
   const [startHour, startMin] = startTime.split(':').map(Number);
@@ -70,31 +56,25 @@ function generateTimeSlots(startTime, endTime, sessionDuration, breakDuration) {
   return slots;
 }
 
-// @desc    Generate AI study schedule
-// @route   POST /api/schedule/generate
 exports.generateSchedule = async (req, res, next) => {
   try {
     const user = await User.findById(req.user._id);
     const { days = 7 } = req.body;
 
-    // Get pending/in-progress tasks sorted by due date
     const tasks = await Task.find({
       user: req.user._id,
       status: { $ne: 'completed' }
     }).populate('subject');
 
-    // Get subject performance data
     const subjects = await Subject.find({ user: req.user._id });
     const subjectMap = {};
     subjects.forEach(s => { subjectMap[s._id.toString()] = s; });
 
-    // Score and sort tasks
     const scoredTasks = tasks.map(task => ({
       task,
       score: calculateTaskScore(task, task.subject ? subjectMap[task.subject._id.toString()] : null)
     })).sort((a, b) => b.score - a.score);
 
-    // Generate schedule for the requested number of days
     const schedule = [];
     const { sessionDuration = 45, breakDuration = 15, preferredStartTime = '09:00', preferredEndTime = '21:00', studyHoursPerDay = 4 } = user.preferences || {};
 
@@ -114,7 +94,6 @@ exports.generateSchedule = async (req, res, next) => {
         sessions: []
       };
 
-      // Assign tasks to time slots
       let taskIndex = 0;
       for (const slot of daySlots) {
         if (taskIndex >= scoredTasks.length) break;
@@ -144,9 +123,7 @@ exports.generateSchedule = async (req, res, next) => {
           dueDate: task.dueDate
         });
 
-        // If remaining time > session duration, keep the same task for next slot
         if (remainingMinutes > sessionDuration) {
-          // Don't advance taskIndex — continue with same task
         } else {
           taskIndex++;
         }
@@ -155,7 +132,6 @@ exports.generateSchedule = async (req, res, next) => {
       schedule.push(daySchedule);
     }
 
-    // Generate AI insights
     const insights = generateInsights(scoredTasks, subjects);
 
     res.status(200).json({
@@ -176,11 +152,9 @@ exports.generateSchedule = async (req, res, next) => {
   }
 };
 
-// Generate AI-style insights
 function generateInsights(scoredTasks, subjects) {
   const insights = [];
 
-  // High urgency alert
   const urgentTasks = scoredTasks.filter(st => calculateUrgency(st.task.dueDate) >= 85);
   if (urgentTasks.length > 0) {
     insights.push({
@@ -192,7 +166,6 @@ function generateInsights(scoredTasks, subjects) {
     });
   }
 
-  // Performance gap detection
   const weakSubjects = subjects.filter(s => s.currentGrade > 0 && s.currentGrade < s.targetGrade - 10);
   if (weakSubjects.length > 0) {
     insights.push({
@@ -204,7 +177,6 @@ function generateInsights(scoredTasks, subjects) {
     });
   }
 
-  // Workload balance
   const totalMinutes = scoredTasks.reduce((sum, st) => sum + (st.task.estimatedMinutes - st.task.completedMinutes), 0);
   const totalHours = Math.round(totalMinutes / 60);
   insights.push({
@@ -215,7 +187,6 @@ function generateInsights(scoredTasks, subjects) {
     priority: 'info'
   });
 
-  // Study tip
   insights.push({
     type: 'tip',
     icon: '💡',
@@ -227,8 +198,6 @@ function generateInsights(scoredTasks, subjects) {
   return insights;
 }
 
-// @desc    Get today's schedule
-// @route   GET /api/schedule/today
 exports.getTodaySchedule = async (req, res, next) => {
   try {
     const today = new Date();

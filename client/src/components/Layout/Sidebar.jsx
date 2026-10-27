@@ -25,13 +25,11 @@ export default function Sidebar() {
 
   return (
     <aside className={`sidebar ${collapsed ? 'sidebar--collapsed' : ''}`}>
-      {/* Logo */}
       <div className="sidebar__logo" onClick={() => navigate('/dashboard')}>
         <div className="sidebar__logo-icon">🧠</div>
         {!collapsed && <span className="sidebar__logo-text">StudyAI</span>}
       </div>
 
-      {/* Toggle */}
       <button
         className="sidebar__toggle"
         onClick={() => setCollapsed(!collapsed)}
@@ -40,7 +38,6 @@ export default function Sidebar() {
         {collapsed ? '→' : '←'}
       </button>
 
-      {/* Navigation */}
       <nav className="sidebar__nav">
         {navItems.map((item) => (
           <NavLink
@@ -57,7 +54,6 @@ export default function Sidebar() {
         ))}
       </nav>
 
-      {/* User section */}
       <div className="sidebar__user">
         <div className="sidebar__user-avatar">
           {user?.name?.charAt(0).toUpperCase() || 'U'}

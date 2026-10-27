@@ -1,7 +1,5 @@
 const Task = require('../models/Task');
 
-// @desc    Get all tasks for user
-// @route   GET /api/tasks
 exports.getTasks = async (req, res, next) => {
   try {
     const { status, priority, subject, type, sort, search } = req.query;
@@ -34,8 +32,6 @@ exports.getTasks = async (req, res, next) => {
   }
 };
 
-// @desc    Get single task
-// @route   GET /api/tasks/:id
 exports.getTask = async (req, res, next) => {
   try {
     const task = await Task.findOne({ _id: req.params.id, user: req.user._id })
@@ -54,8 +50,6 @@ exports.getTask = async (req, res, next) => {
   }
 };
 
-// @desc    Create task
-// @route   POST /api/tasks
 exports.createTask = async (req, res, next) => {
   try {
     req.body.user = req.user._id;
@@ -71,8 +65,6 @@ exports.createTask = async (req, res, next) => {
   }
 };
 
-// @desc    Update task
-// @route   PUT /api/tasks/:id
 exports.updateTask = async (req, res, next) => {
   try {
     let task = await Task.findOne({ _id: req.params.id, user: req.user._id });
@@ -84,7 +76,6 @@ exports.updateTask = async (req, res, next) => {
       });
     }
 
-    // If completing the task, set completedAt
     if (req.body.status === 'completed' && task.status !== 'completed') {
       req.body.completedAt = new Date();
     }
@@ -100,8 +91,6 @@ exports.updateTask = async (req, res, next) => {
   }
 };
 
-// @desc    Delete task
-// @route   DELETE /api/tasks/:id
 exports.deleteTask = async (req, res, next) => {
   try {
     const task = await Task.findOneAndDelete({ _id: req.params.id, user: req.user._id });
@@ -119,8 +108,6 @@ exports.deleteTask = async (req, res, next) => {
   }
 };
 
-// @desc    Update task status
-// @route   PATCH /api/tasks/:id/status
 exports.updateTaskStatus = async (req, res, next) => {
   try {
     const { status } = req.body;
