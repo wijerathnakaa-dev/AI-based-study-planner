@@ -18,10 +18,33 @@ export default function Profile() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+
+    if (!name.trim()) {
+      toast.error('Full name is required');
+      return;
+    }
+
+    const [sH, sM] = preferences.preferredStartTime.split(':').map(Number);
+    const [eH, eM] = preferences.preferredEndTime.split(':').map(Number);
+    const startMins = sH * 60 + sM;
+    const endMins = eH * 60 + eM;
+
+    if (startMins >= endMins) {
+      toast.error('Preferred start time must be earlier than preferred end time');
+      return;
+    }
+
+    const availableWindow = endMins - startMins;
+    const studyHoursMins = Number(preferences.studyHoursPerDay) * 60;
+    if (studyHoursMins > availableWindow) {
+      toast.error(`Study hours (${preferences.studyHoursPerDay}h) exceeds the study window between ${preferences.preferredStartTime} and ${preferences.preferredEndTime} (${Math.round(availableWindow / 60 * 10) / 10}h)`);
+      return;
+    }
+
     setSaving(true);
     try {
       const res = await authAPI.updateProfile({
-        name,
+        name: name.trim(),
         preferences: {
           studyHoursPerDay: Number(preferences.studyHoursPerDay),
           sessionDuration: Number(preferences.sessionDuration),
@@ -32,8 +55,8 @@ export default function Profile() {
       });
       updateUser(res.data.data);
       toast.success('Profile and preferences updated! ✨');
-    } catch {
-      toast.error('Failed to update profile');
+    } catch (err) {
+      toast.error(err.response?.data?.message || 'Failed to update profile');
     } finally {
       setSaving(false);
     }
@@ -46,7 +69,7 @@ export default function Profile() {
           Student <span className="gradient-text">Profile & Preferences</span>
         </h1>
         <p className="profile-subtitle">
-          Fine-tune how the AI schedule algorithm tailors your daily study sessions
+          Fine-tune how the study schedule algorithm tailors your daily study sessions
         </p>
       </div>
 
@@ -89,7 +112,7 @@ export default function Profile() {
             </div>
 
             <div className="settings-section-title" style={{ marginTop: '28px' }}>
-              <span>⚙️</span> AI Study Scheduler Settings
+              <span>⚙️</span> Study Scheduler Settings
             </div>
 
             <div className="form-row">

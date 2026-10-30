@@ -34,8 +34,8 @@ export default function Login() {
       <div className="auth-card glass-card animate-scale-in">
         <div className="auth-header">
           <Link to="/" className="auth-logo">
-            <span className="auth-logo-icon">🧠</span>
-            <span className="auth-logo-text">StudyAI</span>
+            <span className="auth-logo-icon">📚</span>
+            <span className="auth-logo-text">StudyPlanner</span>
           </Link>
           <h1 className="auth-title">Welcome Back</h1>
           <p className="auth-subtitle">Sign in to continue your learning journey</p>

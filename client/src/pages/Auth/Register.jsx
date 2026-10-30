@@ -45,8 +45,8 @@ export default function Register() {
       <div className="auth-card glass-card animate-scale-in">
         <div className="auth-header">
           <Link to="/" className="auth-logo">
-            <span className="auth-logo-icon">🧠</span>
-            <span className="auth-logo-text">StudyAI</span>
+            <span className="auth-logo-icon">📚</span>
+            <span className="auth-logo-text">StudyPlanner</span>
           </Link>
           <h1 className="auth-title">Create Account</h1>
           <p className="auth-subtitle">Start your journey to academic excellence</p>

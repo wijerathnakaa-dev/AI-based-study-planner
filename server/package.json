@@ -1,7 +1,7 @@
 {
   "name": "study-planner-server",
   "version": "1.0.0",
-  "description": "Backend API for AI Study Planner",
+  "description": "Backend API for Study Planner and Academic Success Tracker",
   "main": "server.js",
   "scripts": {
     "start": "node server.js",

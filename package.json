@@ -1,7 +1,7 @@
 {
-  "name": "ai-study-planner",
+  "name": "study-planner-and-academic-success-tracker",
   "version": "1.0.0",
-  "description": "AI-Powered Study Planner and Academic Success Tracker",
+  "description": "Study Planner and Academic Success Tracker",
   "scripts": {
     "server": "cd server && npm run dev",
     "client": "cd client && npm run dev",

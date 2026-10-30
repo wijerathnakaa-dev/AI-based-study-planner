@@ -26,8 +26,8 @@ export default function Sidebar() {
   return (
     <aside className={`sidebar ${collapsed ? 'sidebar--collapsed' : ''}`}>
       <div className="sidebar__logo" onClick={() => navigate('/dashboard')}>
-        <div className="sidebar__logo-icon">🧠</div>
-        {!collapsed && <span className="sidebar__logo-text">StudyAI</span>}
+        <div className="sidebar__logo-icon">📚</div>
+        {!collapsed && <span className="sidebar__logo-text">StudyPlanner</span>}
       </div>
 
       <button

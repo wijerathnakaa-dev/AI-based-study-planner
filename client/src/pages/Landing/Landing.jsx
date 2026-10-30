@@ -4,8 +4,8 @@ import './Landing.css';
 
 const features = [
   {
-    icon: '🤖',
-    title: 'AI-Powered Scheduling',
+    icon: '📅',
+    title: 'Automated Schedule Optimization',
     description: 'Smart algorithms analyze your deadlines, priorities, and study habits to create the perfect study plan.',
     color: '#8b5cf6'
   },
@@ -55,8 +55,8 @@ export default function Landing() {
     <div className="landing">
       <nav className="landing__nav">
         <div className="landing__nav-brand">
-          <span className="landing__nav-icon">🧠</span>
-          <span className="landing__nav-name">StudyAI</span>
+          <span className="landing__nav-icon">📚</span>
+          <span className="landing__nav-name">StudyPlanner</span>
         </div>
         <div className="landing__nav-links">
           {user ? (
@@ -79,14 +79,14 @@ export default function Landing() {
 
         <div className="landing__hero-content">
           <div className="landing__hero-badge animate-fade-in">
-            <span>✨</span> AI-Powered Academic Success
+            <span>✨</span> Study Planner &amp; Academic Success Tracker
           </div>
           <h1 className="landing__hero-title animate-fade-in-up">
             Study Smarter,<br />
             <span className="gradient-text">Not Harder</span>
           </h1>
           <p className="landing__hero-desc animate-fade-in-up stagger-2">
-            Your AI-powered study companion that creates personalized schedules,
+            Your personalized study companion that creates optimized schedules,
             tracks your academic performance, and helps you achieve your goals with
             intelligent insights.
           </p>
@@ -142,7 +142,7 @@ export default function Landing() {
       <section className="landing__cta">
         <div className="landing__cta-content glass-card">
           <h2>Ready to Transform Your Studies?</h2>
-          <p>Join thousands of students already achieving their academic goals with AI-powered planning.</p>
+          <p>Join thousands of students already achieving their academic goals with smart study planning.</p>
           <Link to="/register" className="btn-primary btn-lg">
             Get Started Free →
           </Link>
@@ -151,9 +151,9 @@ export default function Landing() {
 
       <footer className="landing__footer">
         <div className="landing__footer-brand">
-          <span>🧠</span> StudyAI
+          <span>📚</span> StudyPlanner
         </div>
-        <p>&copy; 2026 StudyAI. Built for students, by students.</p>
+        <p>&copy; 2026 StudyPlanner. Built for students, by students.</p>
       </footer>
     </div>
   );
