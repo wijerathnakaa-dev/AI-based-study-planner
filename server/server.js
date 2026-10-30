@@ -1,11 +1,12 @@
 const express = require('express');
 const cors = require('cors');
 const cookieParser = require('cookie-parser');
+const path = require('path');
 const dotenv = require('dotenv');
 const connectDB = require('./config/db');
 const errorHandler = require('./middleware/errorHandler');
 
-dotenv.config();
+dotenv.config({ path: path.join(__dirname, '.env') });
 
 connectDB();
 
@@ -19,13 +20,17 @@ const allowedOrigins = [
   'http://127.0.0.1:3000'
 ].filter(Boolean);
 
+// Matches localhost, 127.0.0.1, and private local network ranges (192.168.x.x, 10.x.x.x, 172.16-31.x.x)
+const localNetworkPattern = /^https?:\/\/(localhost|127\.0\.0\.1|192\.168\.\d{1,3}\.\d{1,3}|10\.\d{1,3}\.\d{1,3}\.\d{1,3}|172\.(1[6-9]|2\d|3[01])\.\d{1,3}\.\d{1,3})(:\d+)?$/;
+
 app.use(cors({
   origin: (origin, callback) => {
+    // Allow requests with no origin (like mobile apps, curl, server-to-server)
     if (!origin) return callback(null, true);
-    if (allowedOrigins.includes(origin) || /^http:\/\/(localhost|127\.0\.0\.1)(:\d+)?$/.test(origin)) {
+    if (allowedOrigins.includes(origin) || localNetworkPattern.test(origin)) {
       return callback(null, true);
     }
-    return callback(null, true);
+    return callback(new Error('Origin not allowed by CORS'));
   },
   credentials: true
 }));
