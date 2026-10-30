@@ -28,8 +28,13 @@ export default function Timer() {
   const [focusScore, setFocusScore] = useState(8);
   const [sessionNotes, setSessionNotes] = useState('');
   const [savingSession, setSavingSession] = useState(false);
+  const [sessionStartTime, setSessionStartTime] = useState(null);
+  const [sessionEndTime, setSessionEndTime] = useState(null);
+  const [elapsedSeconds, setElapsedSeconds] = useState(0);
 
   const timerRef = useRef(null);
+  const sessionStartRef = useRef(null);
+  const elapsedSecondsRef = useRef(0);
 
   const playChime = () => {
     try {
@@ -61,6 +66,16 @@ export default function Timer() {
     if (location.state?.taskId) {
       setSelectedTask(location.state.taskId);
     }
+    if (location.state?.subjectId) {
+      setSelectedSubject(location.state.subjectId);
+    }
+    if (location.state?.duration) {
+      const customDur = Math.round(Number(location.state.duration) * 60);
+      if (customDur > 0) {
+        setTotalSeconds(customDur);
+        setTimeLeft(customDur);
+      }
+    }
   }, [location.state]);
 
   const loadInitialData = async () => {
@@ -69,10 +84,10 @@ export default function Timer() {
         subjectsAPI.getAll(),
         tasksAPI.getAll({ status: 'pending' })
       ]);
-      setSubjects(subsRes.data.data);
-      setTasks(tasksRes.data.data);
+      setSubjects(subsRes.data.data || []);
+      setTasks(tasksRes.data.data || []);
 
-      if (location.state?.taskId && tasksRes.data.data) {
+      if (location.state?.taskId && tasksRes.data?.data) {
         const found = tasksRes.data.data.find(t => t._id === location.state.taskId);
         if (found && found.subject) {
           setSelectedSubject(found.subject._id || found.subject);
@@ -85,12 +100,15 @@ export default function Timer() {
   useEffect(() => {
     if (isRunning) {
       timerRef.current = setInterval(() => {
+        elapsedSecondsRef.current += 1;
+        setElapsedSeconds(elapsedSecondsRef.current);
+
         setTimeLeft((prev) => {
           if (prev <= 1) {
             clearInterval(timerRef.current);
             setIsRunning(false);
             playChime();
-            handleTimerComplete();
+            triggerSessionCompletion(true);
             return 0;
           }
           return prev - 1;
@@ -105,11 +123,34 @@ export default function Timer() {
     };
   }, [isRunning]);
 
-  const handleTimerComplete = () => {
-    const elapsedMinutes = Math.round((totalSeconds - timeLeft + 1) / 60) || Math.round(totalSeconds / 60);
-    setCompletedDuration(elapsedMinutes);
+  const triggerSessionCompletion = (isNaturalFinish) => {
+    const now = new Date();
+    const actualSeconds = elapsedSecondsRef.current;
+    const actualMinutes = Math.max(1, Math.round(actualSeconds / 60));
+
+    const calculatedStart = sessionStartRef.current
+      ? sessionStartRef.current
+      : new Date(now.getTime() - actualSeconds * 1000);
+
+    setSessionStartTime(calculatedStart);
+    setSessionEndTime(now);
+    setCompletedDuration(actualMinutes);
     setShowCompleteModal(true);
-    toast.success('Study session finished! 🎉 Great job staying focused!');
+
+    if (isNaturalFinish) {
+      toast.success('Study session finished! 🎉 Great job staying focused!');
+    } else {
+      toast.success(`Completed ${actualMinutes} minute${actualMinutes > 1 ? 's' : ''} focus sprint!`);
+    }
+  };
+
+  const handleManualComplete = () => {
+    if (elapsedSecondsRef.current < 10) {
+      toast.error('Session too short to record (focus for at least 10 seconds).');
+      return;
+    }
+    setIsRunning(false);
+    triggerSessionCompletion(false);
   };
 
   const handleModeChange = (modeKey) => {
@@ -118,34 +159,74 @@ export default function Timer() {
     const dur = MODES[modeKey].duration;
     setTotalSeconds(dur);
     setTimeLeft(dur);
+    elapsedSecondsRef.current = 0;
+    setElapsedSeconds(0);
+    sessionStartRef.current = null;
+    setSessionStartTime(null);
+    setSessionEndTime(null);
   };
 
   const toggleStartPause = () => {
-    setIsRunning(!isRunning);
+    if (!isRunning) {
+      if (!sessionStartRef.current) {
+        sessionStartRef.current = new Date();
+        setSessionStartTime(sessionStartRef.current);
+      }
+      setIsRunning(true);
+    } else {
+      setIsRunning(false);
+    }
   };
 
   const handleReset = () => {
     setIsRunning(false);
+    elapsedSecondsRef.current = 0;
+    setElapsedSeconds(0);
+    sessionStartRef.current = null;
+    setSessionStartTime(null);
+    setSessionEndTime(null);
     setTimeLeft(totalSeconds);
+    toast('Timer reset', { icon: '↺' });
   };
 
   const handleSaveSession = async () => {
+    if (!sessionStartTime) {
+      const derivedStart = new Date(Date.now() - completedDuration * 60 * 1000);
+      setSessionStartTime(derivedStart);
+    }
+
+    const payloadStartTime = (sessionStartTime || new Date(Date.now() - completedDuration * 60 * 1000)).toISOString();
+    const payloadEndTime = (sessionEndTime || new Date()).toISOString();
+
     setSavingSession(true);
     try {
       await analyticsAPI.createSession({
         subject: selectedSubject || undefined,
         task: selectedTask || undefined,
+        startTime: payloadStartTime,
+        endTime: payloadEndTime,
         duration: completedDuration,
         focusScore: Number(focusScore),
         notes: sessionNotes,
-        technique: activeMode === 'POMODORO' ? 'pomodoro' : 'standard'
+        type: activeMode === 'POMODORO' ? 'study' : 'revision'
       });
+
       toast.success('Study session logged to your analytics! 📈');
       setShowCompleteModal(false);
       setSessionNotes('');
+
+      // Reset timer counters cleanly
+      elapsedSecondsRef.current = 0;
+      setElapsedSeconds(0);
+      sessionStartRef.current = null;
+      setSessionStartTime(null);
+      setSessionEndTime(null);
       setTimeLeft(totalSeconds);
-    } catch {
-      toast.error('Failed to log session');
+
+      // Reload tasks list to reflect updated completedMinutes
+      loadInitialData();
+    } catch (err) {
+      toast.error(err.response?.data?.message || 'Failed to log session');
     } finally {
       setSavingSession(false);
     }
@@ -230,7 +311,7 @@ export default function Timer() {
 
           <button
             className="btn-timer-secondary"
-            onClick={handleTimerComplete}
+            onClick={handleManualComplete}
             title="Complete & log session early"
           >
             ✓
@@ -280,9 +361,14 @@ export default function Timer() {
             <h2 style={{ marginBottom: '8px', color: 'var(--text-primary)' }}>
               Session Logged! 🎉
             </h2>
-            <p style={{ color: 'var(--text-secondary)', marginBottom: '20px', fontSize: '0.9rem' }}>
-              You completed {completedDuration} minutes of focused study.
+            <p style={{ color: 'var(--text-secondary)', marginBottom: '12px', fontSize: '0.9rem' }}>
+              You completed <strong>{completedDuration} minute{completedDuration > 1 ? 's' : ''}</strong> of focused study.
             </p>
+            {sessionStartTime && (
+              <div style={{ fontSize: '0.8rem', color: 'var(--text-tertiary)', marginBottom: '16px', background: 'rgba(255,255,255,0.03)', padding: '8px 12px', borderRadius: '8px', border: '1px solid var(--border-glass)' }}>
+                ⏱️ Started: {new Date(sessionStartTime).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' })} · Finished: {new Date(sessionEndTime || Date.now()).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' })}
+              </div>
+            )}
 
             <div style={{ marginBottom: '16px' }}>
               <div className="focus-slider-label">

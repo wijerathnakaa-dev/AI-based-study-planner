@@ -290,7 +290,15 @@ export default function Analytics() {
             Daily distribution of study time and self-reported focus
           </div>
           <div className="chart-wrapper">
-            <Line data={studyTrendsChartData} options={trendOptions} />
+            {(overview?.study?.totalSessions || 0) > 0 ? (
+              <Line data={studyTrendsChartData} options={trendOptions} />
+            ) : (
+              <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', height: '100%', color: 'var(--text-tertiary)', textAlign: 'center', padding: 20 }}>
+                <span style={{ fontSize: '2rem', marginBottom: 8 }}>⏱️</span>
+                <strong>No study sessions logged in this period</strong>
+                <p style={{ fontSize: '0.85rem', marginTop: 4 }}>Complete your first session with the Focus Timer to track trends!</p>
+              </div>
+            )}
           </div>
         </div>
 
@@ -298,7 +306,15 @@ export default function Analytics() {
           <div className="chart-card-title">Task Distribution</div>
           <div className="chart-card-subtitle">Breakdown of current task statuses</div>
           <div className="chart-wrapper">
-            <Doughnut data={doughnutData} options={doughnutOptions} />
+            {(taskData.completed + taskData.inProgress + taskData.pending + taskData.overdue) > 0 ? (
+              <Doughnut data={doughnutData} options={doughnutOptions} />
+            ) : (
+              <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', height: '100%', color: 'var(--text-tertiary)', textAlign: 'center', padding: 20 }}>
+                <span style={{ fontSize: '2rem', marginBottom: 8 }}>📋</span>
+                <strong>No tasks created yet</strong>
+                <p style={{ fontSize: '0.85rem', marginTop: 4 }}>Add assignments or exams in Tasks to view your distribution.</p>
+              </div>
+            )}
           </div>
         </div>
       </div>

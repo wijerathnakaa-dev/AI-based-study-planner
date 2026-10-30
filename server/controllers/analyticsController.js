@@ -19,16 +19,21 @@ exports.getOverview = async (req, res, next) => {
     });
 
     const allSessions = await StudySession.find({ user: userId });
-    const totalStudyMinutes = allSessions.reduce((sum, s) => sum + s.duration, 0);
+    const totalStudyMinutes = allSessions.reduce((sum, s) => sum + (s.duration || 0), 0);
     const avgFocusScore = allSessions.length > 0
-      ? allSessions.reduce((sum, s) => sum + s.focusScore, 0) / allSessions.length
+      ? allSessions.reduce((sum, s) => sum + (s.focusScore || 0), 0) / allSessions.length
       : 0;
 
-    const weekStart = new Date();
-    weekStart.setDate(weekStart.getDate() - weekStart.getDay());
+    // Standard ISO week start (Monday 00:00:00)
+    const now = new Date();
+    const dayOfWeek = now.getDay();
+    const diffToMonday = dayOfWeek === 0 ? 6 : dayOfWeek - 1;
+    const weekStart = new Date(now);
+    weekStart.setDate(now.getDate() - diffToMonday);
     weekStart.setHours(0, 0, 0, 0);
+
     const weekSessions = allSessions.filter(s => new Date(s.startTime) >= weekStart);
-    const weeklyStudyMinutes = weekSessions.reduce((sum, s) => sum + s.duration, 0);
+    const weeklyStudyMinutes = weekSessions.reduce((sum, s) => sum + (s.duration || 0), 0);
 
     const subjectCount = await Subject.countDocuments({ user: userId });
 
@@ -74,8 +79,9 @@ exports.getOverview = async (req, res, next) => {
 exports.getStudyTrends = async (req, res, next) => {
   try {
     const { days = 30 } = req.query;
+    const numDays = Math.min(Math.max(1, Number(days) || 30), 90);
     const startDate = new Date();
-    startDate.setDate(startDate.getDate() - Number(days));
+    startDate.setDate(startDate.getDate() - numDays + 1);
     startDate.setHours(0, 0, 0, 0);
 
     const sessions = await StudySession.find({
@@ -84,7 +90,7 @@ exports.getStudyTrends = async (req, res, next) => {
     }).populate('subject', 'name color');
 
     const dailyData = {};
-    for (let i = 0; i < Number(days); i++) {
+    for (let i = 0; i < numDays; i++) {
       const d = new Date(startDate);
       d.setDate(d.getDate() + i);
       const key = d.toISOString().split('T')[0];
@@ -94,9 +100,9 @@ exports.getStudyTrends = async (req, res, next) => {
     sessions.forEach(session => {
       const key = new Date(session.startTime).toISOString().split('T')[0];
       if (dailyData[key]) {
-        dailyData[key].minutes += session.duration;
+        dailyData[key].minutes += (session.duration || 0);
         dailyData[key].sessions += 1;
-        dailyData[key].focusSum += session.focusScore;
+        dailyData[key].focusSum += (session.focusScore || 0);
       }
     });
 
@@ -125,7 +131,7 @@ exports.getSubjectPerformance = async (req, res, next) => {
 
       const totalTasks = tasks.length;
       const completedTasks = tasks.filter(t => t.status === 'completed').length;
-      const totalStudyMinutes = sessions.reduce((sum, s) => sum + s.duration, 0);
+      const totalStudyMinutes = sessions.reduce((sum, s) => sum + (s.duration || 0), 0);
 
       return {
         _id: subject._id,
@@ -153,48 +159,131 @@ exports.getSubjectPerformance = async (req, res, next) => {
 
 exports.createSession = async (req, res, next) => {
   try {
-    req.body.user = req.user._id;
+    const userId = req.user._id;
 
-    if (req.body.startTime && req.body.endTime) {
-      const start = new Date(req.body.startTime);
-      const end = new Date(req.body.endTime);
-      req.body.duration = Math.round((end - start) / (1000 * 60));
+    // 1. Validate timestamps and duration
+    let startTime = req.body.startTime ? new Date(req.body.startTime) : null;
+    let endTime = req.body.endTime ? new Date(req.body.endTime) : null;
+    let duration = Number(req.body.duration);
+
+    if (!startTime || isNaN(startTime.getTime())) {
+      // Derive start time if duration is available, otherwise default to now
+      if (!isNaN(duration) && duration > 0) {
+        startTime = new Date(Date.now() - duration * 60 * 1000);
+      } else {
+        startTime = new Date();
+      }
     }
 
-    const session = await StudySession.create(req.body);
+    if (!endTime || isNaN(endTime.getTime())) {
+      if (!isNaN(duration) && duration > 0) {
+        endTime = new Date(startTime.getTime() + duration * 60 * 1000);
+      } else {
+        endTime = new Date();
+      }
+    }
 
-    if (req.body.subject) {
-      await Subject.findByIdAndUpdate(req.body.subject, {
-        $inc: { totalStudyMinutes: session.duration }
+    // Calculate actual elapsed minutes if not provided or to verify
+    if (isNaN(duration) || duration <= 0) {
+      duration = Math.max(1, Math.round((endTime.getTime() - startTime.getTime()) / (1000 * 60)));
+    }
+
+    if (duration > 1440) {
+      return res.status(400).json({
+        success: false,
+        message: 'Session duration cannot exceed 24 hours (1440 minutes)'
       });
     }
 
-    const user = await User.findById(req.user._id);
-    const today = new Date();
-    today.setHours(0, 0, 0, 0);
-    const streak = user?.studyStreak || { current: 0, longest: 0 };
-    const lastStudy = streak.lastStudyDate ? new Date(streak.lastStudyDate) : null;
+    // 2. Verify Subject Ownership
+    let verifiedSubject = null;
+    if (req.body.subject) {
+      verifiedSubject = await Subject.findOne({ _id: req.body.subject, user: userId });
+      if (!verifiedSubject) {
+        return res.status(404).json({
+          success: false,
+          message: 'Subject not found or does not belong to you'
+        });
+      }
+    }
 
-    if (!lastStudy || lastStudy < today) {
-      const yesterday = new Date(today);
+    // 3. Verify Task Ownership
+    let verifiedTask = null;
+    if (req.body.task) {
+      verifiedTask = await Task.findOne({ _id: req.body.task, user: userId });
+      if (!verifiedTask) {
+        return res.status(404).json({
+          success: false,
+          message: 'Task not found or does not belong to you'
+        });
+      }
+    }
+
+    const focusScore = Math.min(10, Math.max(1, Number(req.body.focusScore) || 7));
+
+    // 4. Create the Study Session
+    const session = await StudySession.create({
+      user: userId,
+      subject: verifiedSubject ? verifiedSubject._id : null,
+      task: verifiedTask ? verifiedTask._id : null,
+      startTime,
+      endTime,
+      duration,
+      focusScore,
+      type: req.body.type || 'study',
+      notes: req.body.notes ? String(req.body.notes).slice(0, 500) : ''
+    });
+
+    // 5. Update Subject totalStudyMinutes
+    if (verifiedSubject) {
+      await Subject.findOneAndUpdate(
+        { _id: verifiedSubject._id, user: userId },
+        { $inc: { totalStudyMinutes: session.duration } }
+      );
+    }
+
+    // 6. Update Task completedMinutes (capped at estimatedMinutes to prevent inaccurate runaway progress)
+    if (verifiedTask) {
+      const currentCompleted = verifiedTask.completedMinutes || 0;
+      const estimated = verifiedTask.estimatedMinutes || 60;
+      const newCompleted = Math.min(currentCompleted + session.duration, estimated);
+
+      const updateFields = { completedMinutes: newCompleted };
+      if (verifiedTask.status === 'pending') {
+        updateFields.status = 'in-progress';
+      }
+
+      await Task.findOneAndUpdate(
+        { _id: verifiedTask._id, user: userId },
+        updateFields
+      );
+    }
+
+    // 7. Update User Study Streak (date-safe comparison)
+    const user = await User.findById(userId);
+    const streak = user?.studyStreak || { current: 0, longest: 0, lastStudyDate: null };
+
+    const now = new Date();
+    const todayStr = now.toISOString().split('T')[0];
+    let lastStudyStr = null;
+    if (streak.lastStudyDate) {
+      lastStudyStr = new Date(streak.lastStudyDate).toISOString().split('T')[0];
+    }
+
+    if (lastStudyStr !== todayStr) {
+      const yesterday = new Date(now);
       yesterday.setDate(yesterday.getDate() - 1);
+      const yesterdayStr = yesterday.toISOString().split('T')[0];
 
       let newStreak = 1;
-      if (lastStudy && lastStudy >= yesterday) {
+      if (lastStudyStr === yesterdayStr) {
         newStreak = (streak.current || 0) + 1;
       }
 
-      await User.findByIdAndUpdate(req.user._id, {
+      await User.findByIdAndUpdate(userId, {
         'studyStreak.current': newStreak,
         'studyStreak.longest': Math.max(newStreak, streak.longest || 0),
-        'studyStreak.lastStudyDate': new Date()
-      });
-    }
-
-    if (req.body.task) {
-      const Task = require('../models/Task');
-      await Task.findByIdAndUpdate(req.body.task, {
-        $inc: { completedMinutes: session.duration }
+        'studyStreak.lastStudyDate': now
       });
     }
 
