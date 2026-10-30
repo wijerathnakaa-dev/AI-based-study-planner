@@ -180,7 +180,131 @@
   gap: 12px;
 }
 
+.tasks-page__card--overdue {
+  border-left: 4px solid var(--accent-rose) !important;
+}
+
+.overdue-banner {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  background: rgba(244, 63, 94, 0.12);
+  border: 1px solid rgba(244, 63, 94, 0.3);
+  padding: 14px 18px;
+  border-radius: var(--radius-lg);
+  margin-bottom: 20px;
+}
+
+.overdue-banner-icon {
+  font-size: 1.8rem;
+  flex-shrink: 0;
+}
+
+.overdue-banner-content {
+  flex: 1;
+}
+
+.overdue-banner-content strong {
+  color: #fda4af;
+  font-size: 0.95rem;
+  display: block;
+}
+
+.overdue-banner-content p {
+  color: var(--text-secondary);
+  font-size: 0.85rem;
+  margin-top: 2px;
+}
+
+.overdue-banner-filter-btn {
+  padding: 6px 14px;
+  font-size: 0.82rem;
+  border-color: rgba(244, 63, 94, 0.4);
+  color: #fda4af;
+}
+
+.tasks-page__card-actions {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  opacity: 0.3;
+  transition: opacity var(--transition-fast);
+}
+
+.tasks-page__card:hover .tasks-page__card-actions {
+  opacity: 1;
+}
+
+.btn-timer-icon, .tasks-page__action-icon {
+  background: none;
+  border: none;
+  font-size: 0.95rem;
+  cursor: pointer;
+  padding: 4px;
+  border-radius: 6px;
+  transition: transform 0.15s;
+}
+
+.btn-timer-icon:hover, .tasks-page__action-icon:hover {
+  transform: scale(1.15);
+}
+
+.task-detail-body {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  margin: 16px 0 24px;
+}
+
+.task-detail-description {
+  color: var(--text-secondary);
+  font-size: 0.9rem;
+  line-height: 1.5;
+  background: rgba(255, 255, 255, 0.02);
+  padding: 10px 14px;
+  border-radius: 8px;
+  border: 1px solid var(--border-glass);
+}
+
+.task-detail-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+}
+
+.task-detail-item {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  background: rgba(255, 255, 255, 0.02);
+  padding: 10px 14px;
+  border-radius: 8px;
+  border: 1px solid var(--border-glass);
+}
+
+.task-detail-label {
+  font-size: 0.72rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--text-tertiary);
+}
+
+.task-detail-value {
+  font-size: 0.88rem;
+  font-weight: 500;
+  color: var(--text-primary);
+}
+
+.task-detail-actions {
+  display: flex;
+  gap: 10px;
+  justify-content: flex-end;
+  border-top: 1px solid var(--border-glass);
+  padding-top: 16px;
+}
+
 @media (max-width: 600px) {
   .tasks-page__form-row { grid-template-columns: 1fr; }
   .tasks-page__filters { flex-direction: column; }
+  .task-detail-grid { grid-template-columns: 1fr; }
 }
