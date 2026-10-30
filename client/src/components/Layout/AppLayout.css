@@ -31,9 +31,34 @@
   z-index: 1;
 }
 
+.app-topbar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 24px;
+  padding-bottom: 14px;
+  border-bottom: 1px solid var(--border-glass);
+}
+
+.app-topbar__tagline {
+  font-size: 0.85rem;
+  color: var(--text-tertiary);
+  font-weight: 500;
+  letter-spacing: 0.02em;
+}
+
+.app-topbar__actions {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
 @media (max-width: 768px) {
   .app-layout__main {
     margin-left: 0;
     padding: 16px;
+  }
+  .app-topbar__tagline {
+    display: none;
   }
 }

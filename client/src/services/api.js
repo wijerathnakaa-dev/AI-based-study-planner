@@ -60,7 +60,8 @@ export const subjectsAPI = {
 
 export const scheduleAPI = {
   generate: (data) => api.post('/schedule/generate', data),
-  getToday: () => api.get('/schedule/today')
+  getToday: () => api.get('/schedule/today'),
+  getRecommendations: () => api.get('/schedule/recommendations')
 };
 
 export const analyticsAPI = {

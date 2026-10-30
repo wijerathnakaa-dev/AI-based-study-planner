@@ -1,15 +1,18 @@
 import { useState, useEffect } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
 import { analyticsAPI, tasksAPI, scheduleAPI } from '../../services/api';
 import toast from 'react-hot-toast';
 import './Dashboard.css';
 
 export default function Dashboard() {
+  const navigate = useNavigate();
   const { user } = useAuth();
   const [overview, setOverview] = useState(null);
   const [recentTasks, setRecentTasks] = useState([]);
   const [schedule, setSchedule] = useState(null);
+  const [recommendations, setRecommendations] = useState(null);
+  const [activeRecIndex, setActiveRecIndex] = useState(0);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -18,15 +21,17 @@ export default function Dashboard() {
 
   const fetchDashboardData = async () => {
     try {
-      const [overviewRes, tasksRes, scheduleRes] = await Promise.all([
+      const [overviewRes, tasksRes, scheduleRes, recRes] = await Promise.all([
         analyticsAPI.getOverview(),
-        tasksAPI.getAll({ sort: 'dueDate', status: 'pending' }),
-        scheduleAPI.generate({ days: 1 })
+        tasksAPI.getAll({ sort: 'dueDate_asc', status: 'pending' }),
+        scheduleAPI.generate({ days: 1 }),
+        scheduleAPI.getRecommendations()
       ]);
       setOverview(overviewRes.data.data);
       setRecentTasks(tasksRes.data.data.slice(0, 5));
       setSchedule(scheduleRes.data.data);
-    } catch (err) {
+      setRecommendations(recRes.data.data);
+    } catch {
       setOverview(null);
       setRecentTasks([]);
     } finally {
@@ -119,6 +124,93 @@ export default function Dashboard() {
         ))}
       </div>
 
+      {/* Feature 1: Personalized Study Recommendation Banner */}
+      {recommendations?.primaryRecommendation && (() => {
+        const allRecs = [
+          recommendations.primaryRecommendation,
+          ...(recommendations.secondaryRecommendations || [])
+        ].filter(Boolean);
+        const currentRec = allRecs[activeRecIndex] || recommendations.primaryRecommendation;
+
+        return (
+          <div className="dashboard__ai-rec glass-card animate-fade-in-up" style={{ marginBottom: 24, padding: '20px 24px', borderLeft: '4px solid var(--accent-purple)' }}>
+            {allRecs.length > 1 && (
+              <div style={{ display: 'flex', gap: 8, marginBottom: 14, overflowX: 'auto', paddingBottom: 4 }}>
+                {allRecs.map((rec, idx) => (
+                  <button
+                    key={rec.task._id}
+                    className={`day-tab-btn ${activeRecIndex === idx ? 'day-tab-btn--active' : ''}`}
+                    onClick={() => setActiveRecIndex(idx)}
+                    style={{ fontSize: '0.78rem', padding: '4px 12px' }}
+                  >
+                    {idx === 0 ? '⭐ Top Pick' : `Alternative #${idx}`} ({rec.aiScore}%)
+                  </button>
+                ))}
+              </div>
+            )}
+
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: 16 }}>
+              <div style={{ flex: 1, minWidth: 260 }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 4 }}>
+                  <span>🎯</span>
+                  <span style={{ fontSize: '0.8rem', fontWeight: 700, color: 'var(--accent-purple-light)', textTransform: 'uppercase', letterSpacing: '0.05em' }}>
+                    Personalized Study Coach &amp; Recommendations
+                  </span>
+                  <span className="badge badge-purple">Match: {currentRec.aiScore}%</span>
+                </div>
+                <h3 style={{ fontSize: '1.2rem', margin: '4px 0 6px', color: 'var(--text-primary)' }}>
+                  {currentRec.task.title}
+                </h3>
+
+                {recommendations?.coachAdvice && activeRecIndex === 0 && (
+                  <div style={{ margin: '6px 0 10px', fontSize: '0.85rem', color: '#c4b5fd', background: 'rgba(139, 92, 246, 0.1)', padding: '6px 12px', borderRadius: '8px', borderLeft: '3px solid var(--accent-purple)' }}>
+                    💬 <strong>Coach Note:</strong> {recommendations.coachAdvice}
+                  </div>
+                )}
+
+                <div style={{ display: 'flex', gap: 12, alignItems: 'center', flexWrap: 'wrap', fontSize: '0.85rem', marginBottom: 8 }}>
+                  {currentRec.task.subject && (
+                    <span style={{ color: currentRec.task.subject.color, fontWeight: 600 }}>
+                      {currentRec.task.subject.icon} {currentRec.task.subject.name}
+                    </span>
+                  )}
+                  <span style={{ color: 'var(--text-secondary)' }}>
+                    Technique: <strong>{currentRec.recommendedTechnique}</strong>
+                  </span>
+                  <span style={{ color: 'var(--text-secondary)' }}>
+                    Duration: <strong>{currentRec.recommendedDuration} mins</strong>
+                  </span>
+                </div>
+                <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap' }}>
+                  {currentRec.reasons.map((r, rIdx) => (
+                    <span key={rIdx} style={{ fontSize: '0.78rem', background: 'rgba(255,255,255,0.05)', padding: '2px 8px', borderRadius: '10px', color: 'var(--text-secondary)' }}>
+                      💡 {r}
+                    </span>
+                  ))}
+                </div>
+              </div>
+
+              <button
+                className="btn-primary"
+                style={{ whiteSpace: 'nowrap', padding: '10px 22px' }}
+                onClick={() =>
+                  navigate('/timer', {
+                    state: {
+                      taskId: currentRec.task._id,
+                      taskTitle: currentRec.task.title,
+                      subjectId: currentRec.task.subject?._id,
+                      duration: currentRec.recommendedDuration
+                    }
+                  })
+                }
+              >
+                ▶ Start Focus Now
+              </button>
+            </div>
+          </div>
+        );
+      })()}
+
       <div className="dashboard__grid">
         <div className="dashboard__section glass-card animate-fade-in-up stagger-3">
           <div className="dashboard__section-header">
@@ -166,7 +258,7 @@ export default function Dashboard() {
 
         <div className="dashboard__section glass-card animate-fade-in-up stagger-4">
           <div className="dashboard__section-header">
-            <h2>🤖 AI Insights</h2>
+            <h2>💡 Study Insights</h2>
           </div>
 
           {schedule?.insights ? (
@@ -186,7 +278,7 @@ export default function Dashboard() {
             </div>
           ) : (
             <div className="dashboard__empty">
-              <p>💡 Add tasks and subjects to get AI-powered insights!</p>
+              <p>💡 Add tasks and subjects to get personalized study insights!</p>
             </div>
           )}
         </div>
