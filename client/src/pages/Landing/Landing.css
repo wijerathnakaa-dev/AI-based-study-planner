@@ -33,6 +33,13 @@
   border-radius: var(--radius-md);
 }
 
+.landing__nav-logo-img {
+  width: 36px;
+  height: 36px;
+  object-fit: contain;
+  filter: drop-shadow(0 2px 8px rgba(99, 102, 241, 0.4));
+}
+
 .landing__nav-name {
   font-family: var(--font-heading);
   font-weight: 800;

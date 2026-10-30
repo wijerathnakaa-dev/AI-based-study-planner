@@ -46,6 +46,14 @@
   border-radius: var(--radius-md);
 }
 
+.sidebar__logo-img {
+  width: 34px;
+  height: 34px;
+  flex-shrink: 0;
+  object-fit: contain;
+  filter: drop-shadow(0 2px 8px rgba(99, 102, 241, 0.4));
+}
+
 .sidebar__logo-text {
   font-family: var(--font-heading);
   font-weight: 800;

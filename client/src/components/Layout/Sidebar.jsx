@@ -26,7 +26,7 @@ export default function Sidebar() {
   return (
     <aside className={`sidebar ${collapsed ? 'sidebar--collapsed' : ''}`}>
       <div className="sidebar__logo" onClick={() => navigate('/dashboard')}>
-        <div className="sidebar__logo-icon">📚</div>
+        <img src="/logo-icon.png" alt="StudyPlanner Logo" className="sidebar__logo-img" />
         {!collapsed && <span className="sidebar__logo-text">StudyPlanner</span>}
       </div>
 

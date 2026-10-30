@@ -55,7 +55,7 @@ export default function Landing() {
     <div className="landing">
       <nav className="landing__nav">
         <div className="landing__nav-brand">
-          <span className="landing__nav-icon">📚</span>
+          <img src="/logo-icon.png" alt="StudyPlanner Logo" className="landing__nav-logo-img" />
           <span className="landing__nav-name">StudyPlanner</span>
         </div>
         <div className="landing__nav-links">
