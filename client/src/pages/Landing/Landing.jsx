@@ -64,7 +64,7 @@ export default function Landing() {
           ) : (
             <>
               <Link to="/login" className="btn-secondary">Sign In</Link>
-              <Link to="/register" className="btn-primary">Get Started Free</Link>
+              <Link to="/register" className="btn-primary">Register</Link>
             </>
           )}
         </div>
@@ -91,11 +91,11 @@ export default function Landing() {
             intelligent insights.
           </p>
           <div className="landing__hero-actions animate-fade-in-up stagger-3">
-            <Link to="/register" className="btn-primary btn-lg">
-              Start For Free →
+            <Link to="/login" className="btn-primary btn-lg">
+              Sign In →
             </Link>
-            <Link to="/login" className="btn-secondary btn-lg">
-              Sign In
+            <Link to="/register" className="btn-secondary btn-lg">
+              Register
             </Link>
           </div>
 
@@ -142,9 +142,9 @@ export default function Landing() {
       <section className="landing__cta">
         <div className="landing__cta-content glass-card">
           <h2>Ready to Transform Your Studies?</h2>
-          <p>Join thousands of students already achieving their academic goals with smart study planning.</p>
+          <p>Join students already achieving their academic goals with smart study planning.</p>
           <Link to="/register" className="btn-primary btn-lg">
-            Get Started Free →
+            Get Started →
           </Link>
         </div>
       </section>

@@ -38,6 +38,13 @@
   margin-bottom: 24px;
   padding-bottom: 14px;
   border-bottom: 1px solid var(--border-glass);
+  position: relative;
+  z-index: 100;
+}
+
+.app-layout__content {
+  position: relative;
+  z-index: 1;
 }
 
 .app-topbar__tagline {
