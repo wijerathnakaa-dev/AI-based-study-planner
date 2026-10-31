@@ -96,7 +96,7 @@
   font-size: 1.4rem;
   padding: 8px;
   border-radius: var(--radius-md);
-  background: rgba(255, 255, 255, 0.05);
+  background: var(--bg-tertiary);
 }
 
 .insight-title {

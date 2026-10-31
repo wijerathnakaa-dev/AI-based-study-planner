@@ -104,21 +104,21 @@ export default function Analytics() {
     maintainAspectRatio: false,
     plugins: {
       legend: {
-        labels: { color: '#94a3b8' }
+        labels: { color: '#334155', font: { weight: '500' } }
       }
     },
     scales: {
       x: {
         ticks: { color: '#64748b' },
-        grid: { color: 'rgba(255,255,255,0.04)' }
+        grid: { color: 'rgba(226, 232, 240, 0.8)' }
       },
       y: {
         type: 'linear',
         display: true,
         position: 'left',
-        ticks: { color: '#8b5cf6' },
-        grid: { color: 'rgba(255,255,255,0.04)' },
-        title: { display: true, text: 'Hours', color: '#8b5cf6' }
+        ticks: { color: '#6366f1' },
+        grid: { color: 'rgba(226, 232, 240, 0.8)' },
+        title: { display: true, text: 'Hours', color: '#6366f1', font: { weight: '600' } }
       },
       y1: {
         type: 'linear',
@@ -127,8 +127,8 @@ export default function Analytics() {
         min: 0,
         max: 10,
         grid: { drawOnChartArea: false },
-        ticks: { color: '#06b6d4' },
-        title: { display: true, text: 'Focus Score', color: '#06b6d4' }
+        ticks: { color: '#0284c7' },
+        title: { display: true, text: 'Focus Score', color: '#0284c7', font: { weight: '600' } }
       }
     }
   };
@@ -145,7 +145,8 @@ export default function Analytics() {
           taskData.overdue
         ],
         backgroundColor: ['#10b981', '#3b82f6', '#f59e0b', '#f43f5e'],
-        borderWidth: 0
+        borderColor: '#ffffff',
+        borderWidth: 2
       }
     ]
   };
@@ -156,7 +157,7 @@ export default function Analytics() {
     plugins: {
       legend: {
         position: 'bottom',
-        labels: { color: '#94a3b8', boxWidth: 12 }
+        labels: { color: '#334155', boxWidth: 12, font: { weight: '500' } }
       }
     },
     cutout: '72%'
@@ -172,15 +173,15 @@ export default function Analytics() {
       {
         label: 'Current Grade',
         data: currentGrades,
-        backgroundColor: '#8b5cf6',
+        backgroundColor: '#6366f1',
         borderRadius: 6
       },
       {
         label: 'Target Grade',
         data: targetGrades,
-        backgroundColor: 'rgba(6, 182, 212, 0.4)',
-        borderColor: '#06b6d4',
-        borderWidth: 1,
+        backgroundColor: 'rgba(2, 132, 199, 0.25)',
+        borderColor: '#0284c7',
+        borderWidth: 1.5,
         borderRadius: 6
       }
     ]
@@ -191,19 +192,19 @@ export default function Analytics() {
     maintainAspectRatio: false,
     scales: {
       x: {
-        ticks: { color: '#94a3b8' },
-        grid: { color: 'rgba(255,255,255,0.04)' }
+        ticks: { color: '#475569' },
+        grid: { color: 'rgba(226, 232, 240, 0.8)' }
       },
       y: {
         min: 0,
         max: 100,
-        ticks: { color: '#94a3b8' },
-        grid: { color: 'rgba(255,255,255,0.04)' }
+        ticks: { color: '#475569' },
+        grid: { color: 'rgba(226, 232, 240, 0.8)' }
       }
     },
     plugins: {
       legend: {
-        labels: { color: '#94a3b8' }
+        labels: { color: '#334155', font: { weight: '500' } }
       }
     }
   };
@@ -235,11 +236,11 @@ export default function Analytics() {
 
       <div className="analytics-kpis animate-fade-in-up stagger-1">
         <div className="kpi-card glass-card">
-          <div className="kpi-icon-wrap" style={{ background: 'rgba(139, 92, 246, 0.15)', color: '#8b5cf6' }}>
+          <div className="kpi-icon-wrap" style={{ background: '#ede9fe', color: '#6366f1' }}>
             ⏱️
           </div>
           <div>
-            <div className="kpi-value" style={{ color: '#a78bfa' }}>
+            <div className="kpi-value" style={{ color: '#4f46e5' }}>
               {overview?.study?.totalHours || 0} hrs
             </div>
             <div className="kpi-label">Total Time Studied</div>
@@ -247,11 +248,11 @@ export default function Analytics() {
         </div>
 
         <div className="kpi-card glass-card">
-          <div className="kpi-icon-wrap" style={{ background: 'rgba(6, 182, 212, 0.15)', color: '#06b6d4' }}>
+          <div className="kpi-icon-wrap" style={{ background: '#e0f2fe', color: '#0284c7' }}>
             🎯
           </div>
           <div>
-            <div className="kpi-value" style={{ color: '#06b6d4' }}>
+            <div className="kpi-value" style={{ color: '#0284c7' }}>
               {overview?.study?.avgFocusScore || 0}/10
             </div>
             <div className="kpi-label">Average Focus Score</div>
@@ -259,11 +260,11 @@ export default function Analytics() {
         </div>
 
         <div className="kpi-card glass-card">
-          <div className="kpi-icon-wrap" style={{ background: 'rgba(16, 185, 129, 0.15)', color: '#10b981' }}>
+          <div className="kpi-icon-wrap" style={{ background: '#d1fae5', color: '#059669' }}>
             ✅
           </div>
           <div>
-            <div className="kpi-value" style={{ color: '#10b981' }}>
+            <div className="kpi-value" style={{ color: '#059669' }}>
               {overview?.tasks?.completionRate || 0}%
             </div>
             <div className="kpi-label">Task Completion Rate</div>
@@ -271,11 +272,11 @@ export default function Analytics() {
         </div>
 
         <div className="kpi-card glass-card">
-          <div className="kpi-icon-wrap" style={{ background: 'rgba(244, 63, 94, 0.15)', color: '#f43f5e' }}>
+          <div className="kpi-icon-wrap" style={{ background: '#ffe4e6', color: '#e11d48' }}>
             🔥
           </div>
           <div>
-            <div className="kpi-value" style={{ color: '#f43f5e' }}>
+            <div className="kpi-value" style={{ color: '#e11d48' }}>
               {overview?.streak?.current || 0} Days
             </div>
             <div className="kpi-label">Current Streak (Best: {overview?.streak?.longest || 0})</div>

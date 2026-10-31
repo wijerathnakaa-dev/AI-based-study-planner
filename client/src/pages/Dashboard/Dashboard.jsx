@@ -163,7 +163,7 @@ export default function Dashboard() {
                 </h3>
 
                 {recommendations?.coachAdvice && activeRecIndex === 0 && (
-                  <div style={{ margin: '6px 0 10px', fontSize: '0.85rem', color: '#c4b5fd', background: 'rgba(139, 92, 246, 0.1)', padding: '6px 12px', borderRadius: '8px', borderLeft: '3px solid var(--accent-purple)' }}>
+                  <div style={{ margin: '6px 0 10px', fontSize: '0.85rem', color: '#4338ca', background: '#f5f3ff', padding: '8px 14px', borderRadius: '8px', borderLeft: '3px solid var(--accent-purple)', lineHeight: 1.45 }}>
                     💬 <strong>Coach Note:</strong> {recommendations.coachAdvice}
                   </div>
                 )}
@@ -183,7 +183,7 @@ export default function Dashboard() {
                 </div>
                 <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap' }}>
                   {currentRec.reasons.map((r, rIdx) => (
-                    <span key={rIdx} style={{ fontSize: '0.78rem', background: 'rgba(255,255,255,0.05)', padding: '2px 8px', borderRadius: '10px', color: 'var(--text-secondary)' }}>
+                    <span key={rIdx} style={{ fontSize: '0.78rem', background: 'var(--bg-tertiary)', border: '1px solid var(--border-color)', padding: '3px 10px', borderRadius: '12px', color: 'var(--text-secondary)', fontWeight: 500 }}>
                       💡 {r}
                     </span>
                   ))}

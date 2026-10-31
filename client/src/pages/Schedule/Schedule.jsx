@@ -126,7 +126,7 @@ export default function Schedule() {
 
       {/* Feature 1: Personalized Study Recommendation Banner */}
       {primaryRec && (
-        <div className="ai-rec-hero glass-card animate-fade-in-up" style={{ marginBottom: 24, padding: '20px 24px', borderLeft: '4px solid var(--accent-purple)' }}>
+        <div className="ai-rec-hero glass-card animate-fade-in-up" style={{ marginBottom: 24, padding: '20px 24px', borderLeft: '4px solid var(--accent-purple)', background: 'linear-gradient(135deg, #f5f3ff 0%, #ffffff 100%)' }}>
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', flexWrap: 'wrap', gap: 16 }}>
             <div>
               <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 6 }}>
@@ -154,7 +154,7 @@ export default function Schedule() {
               </div>
               <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
                 {primaryRec.reasons.map((r, idx) => (
-                  <span key={idx} style={{ fontSize: '0.78rem', background: 'rgba(255,255,255,0.05)', padding: '3px 10px', borderRadius: '12px', color: 'var(--text-secondary)' }}>
+                  <span key={idx} style={{ fontSize: '0.78rem', background: 'var(--bg-tertiary)', border: '1px solid var(--border-color)', padding: '3px 10px', borderRadius: '12px', color: 'var(--text-secondary)' }}>
                     {r}
                   </span>
                 ))}

@@ -26,7 +26,7 @@
 .auth-orb--1 {
   width: 400px;
   height: 400px;
-  background: rgba(139, 92, 246, 0.4);
+  background: rgba(99, 102, 241, 0.18);
   top: 20%;
   left: 20%;
 }
@@ -34,7 +34,7 @@
 .auth-orb--2 {
   width: 350px;
   height: 350px;
-  background: rgba(6, 182, 212, 0.3);
+  background: rgba(14, 165, 233, 0.15);
   bottom: 20%;
   right: 20%;
   animation-delay: 3s;
