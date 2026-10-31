@@ -39,11 +39,12 @@ export default function NotificationBell() {
   const loadReminders = async () => {
     try {
       const [tasksRes, subjectsRes] = await Promise.all([
-        tasksAPI.getAll({ status: 'pending' }),
+        tasksAPI.getAll(),
         subjectsAPI.getAll()
       ]);
 
-      const tasks = tasksRes.data?.data || [];
+      const allTasks = tasksRes.data?.data || [];
+      const tasks = allTasks.filter((t) => t.status !== 'completed');
       const subjects = subjectsRes.data?.data || [];
       const now = new Date();
       const items = [];
