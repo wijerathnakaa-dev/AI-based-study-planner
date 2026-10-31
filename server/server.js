@@ -51,6 +51,16 @@ app.use(errorHandler);
 
 const PORT = process.env.PORT || 5000;
 
-app.listen(PORT, '0.0.0.0', () => {
+const server = app.listen(PORT, '0.0.0.0', () => {
   console.log(`Server running on port ${PORT}`);
+});
+
+server.on('error', (err) => {
+  if (err.code === 'EADDRINUSE') {
+    console.error(`\n[Server Error] Port ${PORT} is already in use by another process.`);
+    console.error(`Please close any existing process on port ${PORT} and try again.\n`);
+    process.exit(1);
+  } else {
+    console.error('[Server Error]', err);
+  }
 });
